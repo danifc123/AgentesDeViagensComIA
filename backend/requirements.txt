@@ -4,3 +4,6 @@ crewai
 langchain-anthropic
 pydantic
 python-dotenv
+mcp
+amadeus
+requests
