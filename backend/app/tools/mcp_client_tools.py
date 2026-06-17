@@ -134,7 +134,7 @@ def tool_buscar_voos(origem: str, destino: str, data: str) -> str:
             duration = f"{hours}h{minutes}m"
 
         purchase_url = _extract_purchase_url(off)
-        purchase_text = f" | Compra: {purchase_url}" if purchase_url else " | Compra: link não disponível"
+        purchase_text = f" | Compra: {purchase_url}" if purchase_url else " | Compra: direto no site!"
 
         results.append(
             f"Companhia: {airline} | Preço: {amount} {currency} | Duração: {duration}{purchase_text}"

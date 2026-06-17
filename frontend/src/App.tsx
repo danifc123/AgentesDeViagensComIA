@@ -23,7 +23,7 @@ function App() {
 
   const renderInlineText = (text: string) => {
     const parts: React.ReactNode[] = []
-    const regex = /(\[([^\]]+)\]\((https?:\/\/[^\s)]+)\))|(https?:\/\/[^\s]+)/g
+    const regex = /(\*\*([^*]+)\*\*)|(\*([^*]+)\*)|(\[([^\]]+)\]\((https?:\/\/[^\s)]+)\))|(https?:\/\/[^\s]+)/g
     let lastIndex = 0
     let match: RegExpExecArray | null = null
 
@@ -32,16 +32,24 @@ function App() {
         parts.push(text.slice(lastIndex, match.index))
       }
 
-      if (match[2] && match[3]) {
+      if (match[2]) {
         parts.push(
-          <a key={match.index} href={match[3]} target="_blank" rel="noreferrer">
-            {match[2]}
-          </a>
+          <strong key={match.index}>{match[2]}</strong>
         )
       } else if (match[4]) {
         parts.push(
-          <a key={match.index} href={match[4]} target="_blank" rel="noreferrer">
-            {match[4]}
+          <em key={match.index}>{match[4]}</em>
+        )
+      } else if (match[6] && match[7]) {
+        parts.push(
+          <a key={match.index} href={match[7]} target="_blank" rel="noreferrer">
+            {match[6]}
+          </a>
+        )
+      } else if (match[8]) {
+        parts.push(
+          <a key={match.index} href={match[8]} target="_blank" rel="noreferrer">
+            {match[8]}
           </a>
         )
       }
@@ -133,6 +141,16 @@ function App() {
         {section.title && <h3>{section.title}</h3>}
         {section.blocks.map((block, blockIndex) => {
           if (block.type === 'paragraph') {
+            const kvMatch = block.text.match(/^\*\*(.+?)\*\*:\s*(.+)$/)
+            if (kvMatch) {
+              return (
+                <div key={blockIndex} className="markdown-key-value">
+                  <span className="kv-key">{renderInlineText(kvMatch[1])}</span>
+                  <span className="kv-separator">:</span>
+                  <span className="kv-value">{renderInlineText(kvMatch[2])}</span>
+                </div>
+              )
+            }
             return <p key={blockIndex}>{renderInlineText(block.text)}</p>
           }
           if (block.type === 'subtitle') {
