@@ -1,28 +1,30 @@
 .app-container {
   min-height: 100vh;
-  padding: 24px;
+  padding: 24px 20px;
   display: flex;
   flex-direction: column;
   gap: 24px;
-  background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
-  color: #111827;
-  font-family: Inter, system-ui, sans-serif;
+  color: #e2e8f0;
 }
 
 .header {
   text-align: center;
-  max-width: 780px;
+  max-width: 760px;
   margin: 0 auto;
 }
 
 .header h1 {
-  font-size: clamp(2rem, 4vw, 3rem);
-  margin-bottom: 8px;
+  font-size: clamp(2.2rem, 4vw, 3.4rem);
+  margin-bottom: 0.5rem;
+  background: linear-gradient(90deg, #60a5fa, #a78bfa);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .header p {
   margin: 0;
-  color: #475569;
+  color: #94a3b8;
   font-size: 1rem;
 }
 
@@ -36,61 +38,68 @@
 
 .form-section,
 .result-section {
-  background: #ffffff;
+  background: rgba(15, 23, 42, 0.86);
   border: 1px solid rgba(148, 163, 184, 0.18);
-  border-radius: 24px;
-  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+  border-radius: 22px;
+  box-shadow: 0 22px 50px rgba(15, 23, 42, 0.35);
   padding: 28px;
 }
 
 .travel-form {
   display: grid;
-  gap: 18px;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
 }
 
 .input-group {
-  display: grid;
-  gap: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
 }
 
 .input-group label {
+  font-size: 0.95rem;
   font-weight: 600;
-  color: #0f172a;
+  color: #cbd5e1;
 }
 
 .input-group input {
-  border: 1px solid #cbd5e1;
+  padding: 0.95rem 1rem;
   border-radius: 14px;
-  padding: 14px 16px;
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
   font-size: 1rem;
-  color: #0f172a;
-  background: #f8fafc;
+  transition: all 0.3s ease;
 }
 
 .input-group input:focus {
   outline: none;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.12);
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.18);
+  background: rgba(15, 23, 42, 0.92);
 }
 
 .submit-btn {
-  border: none;
+  grid-column: 1 / -1;
+  padding: 1rem 1.2rem;
   border-radius: 14px;
-  padding: 14px 20px;
-  background: #2563eb;
+  background: linear-gradient(135deg, #2563eb 0%, #6366f1 100%);
   color: white;
   font-weight: 700;
+  font-size: 1.05rem;
+  border: none;
   cursor: pointer;
   transition: transform 0.18s ease, background 0.18s ease;
 }
 
 .submit-btn:hover:not(:disabled) {
-  background: #1d4ed8;
   transform: translateY(-1px);
+  background: linear-gradient(135deg, #1d4ed8 0%, #4f46e5 100%);
 }
 
 .submit-btn:disabled {
-  opacity: 0.75;
+  opacity: 0.72;
   cursor: not-allowed;
 }
 
@@ -101,42 +110,76 @@
 
 .result-section h2 {
   margin-top: 0;
-  margin-bottom: 20px;
-  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: #93c5fd;
 }
 
 .markdown-body {
-  display: block;
+  display: grid;
+  gap: 18px;
+}
+
+.markdown-section-card {
+  background: rgba(30, 41, 59, 0.9);
+  border: 1px solid rgba(96, 165, 250, 0.18);
+  border-left: 4px solid rgba(96, 165, 250, 0.6);
+  border-radius: 20px;
   padding: 22px;
-  border-radius: 18px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  color: #0f172a;
-  line-height: 1.75;
 }
 
-.markdown-body h2,
-.markdown-body h3,
-.markdown-body h4 {
-  margin-top: 1.6rem;
-  margin-bottom: 0.8rem;
-  color: #0f172a;
+.markdown-section-card h3 {
+  margin: 0 0 0.9rem;
+  color: #bfdbfe;
+  font-size: 1.2rem;
 }
 
-.markdown-body p {
-  margin: 0 0 1rem;
+.markdown-section-card h4 {
+  margin: 1.3rem 0 0.65rem;
+  color: #c7d2fe;
+  font-size: 1rem;
 }
 
-.markdown-body ul {
-  margin: 0 0 1rem 1.2rem;
+.markdown-section-card p {
+  margin: 0 0 0.95rem;
+  color: #e2e8f0;
 }
 
-.markdown-body li {
+.markdown-section-card ul {
+  margin: 0 0 1rem 1.25rem;
+  padding: 0;
+  color: #e2e8f0;
+}
+
+.markdown-section-card li {
   margin-bottom: 0.75rem;
 }
 
-.markdown-body br {
-  content: '';
+.markdown-table-wrapper {
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+.markdown-table-wrapper table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 320px;
+}
+
+.markdown-table-wrapper td {
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  color: #e2e8f0;
+  font-size: 0.95rem;
+}
+
+.markdown-section-card tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+@media (max-width: 760px) {
+  .travel-form {
+    grid-template-columns: 1fr;
+  }
 }
 
 @keyframes pulse {

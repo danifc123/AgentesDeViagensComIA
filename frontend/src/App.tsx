@@ -1,6 +1,18 @@
 import React, { useState } from 'react'
 import './App.css'
 
+type MarkdownBlock =
+  | { type: 'paragraph'; text: string }
+  | { type: 'list'; items: string[] }
+  | { type: 'subtitle'; text: string }
+  | { type: 'table'; rows: string[][] }
+  | { type: 'spacer' }
+
+interface MarkdownSection {
+  title: string
+  blocks: MarkdownBlock[]
+}
+
 function App() {
   const [origem, setOrigem] = useState('')
   const [destino, setDestino] = useState('')
@@ -9,60 +21,107 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [roteiro, setRoteiro] = useState('')
 
-  const escapeHtml = (value: string) =>
-    value
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-
-  const formatMarkdown = (text: string) => {
+  const parseMarkdown = (text: string): MarkdownSection[] => {
     const lines = text.split('\n')
-    let html = ''
-    let inList = false
+    const sections: MarkdownSection[] = []
+    let current: MarkdownSection = { title: 'Resumo', blocks: [] }
+
+    const pushCurrent = () => {
+      if (current.blocks.length || current.title) {
+        sections.push(current)
+      }
+      current = { title: 'Resumo', blocks: [] }
+    }
+
+    const isTableLine = (line: string) => {
+      const parts = line.split('|').map((item) => item.trim())
+      return parts.length >= 3 && parts.some((item) => item !== '')
+    }
+
+    let pendingList: string[] = []
+
+    const flushList = () => {
+      if (pendingList.length > 0) {
+        current.blocks.push({ type: 'list', items: pendingList })
+        pendingList = []
+      }
+    }
 
     lines.forEach((line) => {
       const trimmed = line.trim()
+
       if (trimmed.startsWith('# ')) {
-        if (inList) {
-          html += '</ul>'
-          inList = false
-        }
-        html += `<h2>${escapeHtml(trimmed.slice(2))}</h2>`
+        flushList()
+        if (current.blocks.length || current.title !== 'Resumo') pushCurrent()
+        current = { title: trimmed.slice(2), blocks: [] }
       } else if (trimmed.startsWith('## ')) {
-        if (inList) {
-          html += '</ul>'
-          inList = false
-        }
-        html += `<h3>${escapeHtml(trimmed.slice(3))}</h3>`
-      } else if (trimmed.startsWith('### ')) {
-        if (inList) {
-          html += '</ul>'
-          inList = false
-        }
-        html += `<h4>${escapeHtml(trimmed.slice(4))}</h4>`
+        flushList()
+        current.blocks.push({ type: 'subtitle', text: trimmed.slice(3) })
       } else if (/^[-*]\s+/.test(trimmed)) {
-        if (!inList) {
-          html += '<ul>'
-          inList = true
-        }
-        html += `<li>${escapeHtml(trimmed.replace(/^[-*]\s+/, ''))}</li>`
+        pendingList.push(trimmed.replace(/^[-*]\s+/, ''))
       } else if (trimmed === '') {
-        if (inList) {
-          html += '</ul>'
-          inList = false
-        }
-        html += '<br/>'
+        flushList()
+        current.blocks.push({ type: 'spacer' })
+      } else if (isTableLine(trimmed)) {
+        flushList()
+        const row = trimmed
+          .split('|')
+          .map((cell) => cell.trim())
+          .filter((cell) => cell !== '')
+        current.blocks.push({ type: 'table', rows: [row] })
       } else {
-        if (inList) {
-          html += '</ul>'
-          inList = false
-        }
-        html += `<p>${escapeHtml(trimmed)}</p>`
+        flushList()
+        current.blocks.push({ type: 'paragraph', text: trimmed })
       }
     })
 
-    if (inList) html += '</ul>'
-    return html
+    flushList()
+    pushCurrent()
+    return sections
+  }
+
+  const renderMarkdown = (text: string) => {
+    const sections = parseMarkdown(text)
+    return sections.map((section, index) => (
+      <article className="markdown-section-card" key={`section-${index}`}>
+        {section.title && <h3>{section.title}</h3>}
+        {section.blocks.map((block, blockIndex) => {
+          if (block.type === 'paragraph') {
+            return <p key={blockIndex}>{block.text}</p>
+          }
+          if (block.type === 'subtitle') {
+            return <h4 key={blockIndex}>{block.text}</h4>
+          }
+          if (block.type === 'list') {
+            return (
+              <ul key={blockIndex}>
+                {block.items.map((item, itemIndex) => (
+                  <li key={itemIndex}>{item}</li>
+                ))}
+              </ul>
+            )
+          }
+          if (block.type === 'table') {
+            return (
+              <div key={blockIndex} className="markdown-table-wrapper">
+                <table>
+                  <tbody>
+                    {block.rows.map((row, rowIndex) => (
+                      <tr key={rowIndex}>
+                        {row.map((cell, cellIndex) => (
+                          <td key={cellIndex}>{cell}</td>
+                        ))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )
+          }
+          return <div key={blockIndex} style={{ height: '1rem' }} />
+        })}
+      </article>
+    ))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -165,10 +224,9 @@ function App() {
         {roteiro && (
           <section className="result-section">
             <h2>🗺️ Seu Roteiro Inteligente</h2>
-            <div
-              className="markdown-body"
-              dangerouslySetInnerHTML={{ __html: formatMarkdown(roteiro) }}
-            />
+            <div className="markdown-body">
+              {renderMarkdown(roteiro)}
+            </div>
           </section>
         )}
       </main>
