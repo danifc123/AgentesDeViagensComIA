@@ -39,6 +39,33 @@ async def _call_mcp_tool(server_script_name: str, tool_name: str, arguments: dic
 
 
 # ===== Ignav HTTP tool (substitui integração Amadeus para voos) =====
+def _extract_purchase_url(offer: dict) -> str | None:
+    def _normalize_url(value: object) -> str | None:
+        if isinstance(value, str) and value.startswith("http"):
+            return value
+        if isinstance(value, dict):
+            for key in ("url", "href", "booking_url", "deep_link", "purchase_url", "checkout_url", "redirect_url", "link"):
+                candidate = value.get(key)
+                if isinstance(candidate, str) and candidate.startswith("http"):
+                    return candidate
+        return None
+
+    for key in ("booking_url", "deep_link", "url", "purchase_url", "checkout_url", "redirect_url", "link", "fare_url", "bookingLink"):
+        url = _normalize_url(offer.get(key))
+        if url:
+            return url
+
+    for key in ("links", "urls"):
+        value = offer.get(key)
+        if isinstance(value, list):
+            for item in value:
+                url = _normalize_url(item)
+                if url:
+                    return url
+
+    return None
+
+
 @tool("Pesquisar Passagens Aéreas")
 def tool_buscar_voos(origem: str, destino: str, data: str) -> str:
     """
@@ -47,7 +74,7 @@ def tool_buscar_voos(origem: str, destino: str, data: str) -> str:
     - `data`: formato YYYY-MM-DD
 
     Faz POST em https://ignav.com/api/fares/one-way e retorna os 3 melhores itinerários
-    com companhia, preço, moeda e duração (horas/minutos).
+    com companhia, preço, moeda, duração (horas/minutos) e link de compra quando disponível.
     """
     api_key = os.getenv("IGNAV_API_KEY")
     if not api_key:
@@ -106,7 +133,12 @@ def tool_buscar_voos(origem: str, destino: str, data: str) -> str:
             minutes = int(duration) % 60
             duration = f"{hours}h{minutes}m"
 
-        results.append(f"Companhia: {airline} | Preço: {amount} {currency} | Duração: {duration}")
+        purchase_url = _extract_purchase_url(off)
+        purchase_text = f" | Compra: {purchase_url}" if purchase_url else " | Compra: link não disponível"
+
+        results.append(
+            f"Companhia: {airline} | Preço: {amount} {currency} | Duração: {duration}{purchase_text}"
+        )
 
     if not results:
         return "Nenhuma oferta encontrada para os parâmetros informados."

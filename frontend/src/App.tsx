@@ -21,6 +21,41 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [roteiro, setRoteiro] = useState('')
 
+  const renderInlineText = (text: string) => {
+    const parts: React.ReactNode[] = []
+    const regex = /(\[([^\]]+)\]\((https?:\/\/[^\s)]+)\))|(https?:\/\/[^\s]+)/g
+    let lastIndex = 0
+    let match: RegExpExecArray | null = null
+
+    while ((match = regex.exec(text)) !== null) {
+      if (match.index > lastIndex) {
+        parts.push(text.slice(lastIndex, match.index))
+      }
+
+      if (match[2] && match[3]) {
+        parts.push(
+          <a key={match.index} href={match[3]} target="_blank" rel="noreferrer">
+            {match[2]}
+          </a>
+        )
+      } else if (match[4]) {
+        parts.push(
+          <a key={match.index} href={match[4]} target="_blank" rel="noreferrer">
+            {match[4]}
+          </a>
+        )
+      }
+
+      lastIndex = regex.lastIndex
+    }
+
+    if (lastIndex < text.length) {
+      parts.push(text.slice(lastIndex))
+    }
+
+    return parts
+  }
+
   const parseMarkdown = (text: string): MarkdownSection[] => {
     const lines = text.split('\n')
     const sections: MarkdownSection[] = []
@@ -33,9 +68,17 @@ function App() {
       current = { title: 'Resumo', blocks: [] }
     }
 
+    const isSeparatorLine = (line: string) => {
+      const normalized = line.replace(/\|/g, '').trim()
+      return normalized.length > 0 && /^[-*_\s:]+$/.test(normalized)
+    }
+
     const isTableLine = (line: string) => {
+      if (!line.includes('|')) return false
+      const withoutPipe = line.replace(/\|/g, '').trim()
+      if (/^[-*_\s:]+$/.test(withoutPipe)) return false
       const parts = line.split('|').map((item) => item.trim())
-      return parts.length >= 3 && parts.some((item) => item !== '')
+      return parts.length >= 2 && parts.some((item) => item !== '')
     }
 
     let pendingList: string[] = []
@@ -60,6 +103,9 @@ function App() {
       } else if (/^[-*]\s+/.test(trimmed)) {
         pendingList.push(trimmed.replace(/^[-*]\s+/, ''))
       } else if (trimmed === '') {
+        flushList()
+        current.blocks.push({ type: 'spacer' })
+      } else if (isSeparatorLine(trimmed)) {
         flushList()
         current.blocks.push({ type: 'spacer' })
       } else if (isTableLine(trimmed)) {
@@ -87,7 +133,7 @@ function App() {
         {section.title && <h3>{section.title}</h3>}
         {section.blocks.map((block, blockIndex) => {
           if (block.type === 'paragraph') {
-            return <p key={blockIndex}>{block.text}</p>
+            return <p key={blockIndex}>{renderInlineText(block.text)}</p>
           }
           if (block.type === 'subtitle') {
             return <h4 key={blockIndex}>{block.text}</h4>
@@ -96,7 +142,7 @@ function App() {
             return (
               <ul key={blockIndex}>
                 {block.items.map((item, itemIndex) => (
-                  <li key={itemIndex}>{item}</li>
+                  <li key={itemIndex}>{renderInlineText(item)}</li>
                 ))}
               </ul>
             )
@@ -109,7 +155,7 @@ function App() {
                     {block.rows.map((row, rowIndex) => (
                       <tr key={rowIndex}>
                         {row.map((cell, cellIndex) => (
-                          <td key={cellIndex}>{cell}</td>
+                          <td key={cellIndex}>{renderInlineText(cell)}</td>
                         ))}
                       </tr>
                     ))}
