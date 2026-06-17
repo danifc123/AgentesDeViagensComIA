@@ -118,7 +118,7 @@ def tool_buscar_voos(origem: str, destino: str, data: str) -> str:
         except Exception:
             return 1e12
 
-    offers_sorted = sorted(offers, key=_price)[:3]
+    offers_sorted = sorted(offers, key=_price)[:10]
 
     results = []
     for off in offers_sorted:

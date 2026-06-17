@@ -24,8 +24,8 @@ def criar_equipe_viagem(origem: str, destino: str, data: str, orcamento: float) 
 
     # 2. Definir Tarefas (Tasks)
     tarefa_voos = Task(
-        description=f'Pesquisar passagens aéreas de {origem} para {destino} na data {data}. O orçamento TOTAL da viagem é R${orcamento}. Liste apenas os melhores voos.',
-        expected_output='Lista com opções de voos (companhia, preço estimado, horário).',
+        description=f'Pesquisar passagens aéreas de {origem} para {destino} na data {data}. O orçamento TOTAL da viagem é R${orcamento}. Liste as melhores opções de voos disponíveis e forneça os links de compra quando possível.',
+        expected_output='Lista com opções de voos (companhia, preço estimado, horário e link de compra).',
         agent=agente_voos
     )
 
