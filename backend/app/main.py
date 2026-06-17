@@ -1,3 +1,4 @@
+import re
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -31,4 +32,11 @@ def gerar_roteiro(request: RoteiroRequest):
         data=request.data,
         orcamento=request.orcamento
     )
+
+    if isinstance(resultado, str):
+        # Remove blocos de raciocínio interno do CrewAI e normalize o texto
+        resultado = re.sub(r"<think>.*?</think>", "", resultado, flags=re.S)
+        resultado = re.sub(r"<think>.*", "", resultado, flags=re.S)
+        resultado = re.sub(r"\n{3,}", "\n\n", resultado).strip()
+
     return {"roteiro": resultado}

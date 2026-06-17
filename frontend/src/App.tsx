@@ -9,11 +9,67 @@ function App() {
   const [loading, setLoading] = useState(false)
   const [roteiro, setRoteiro] = useState('')
 
+  const escapeHtml = (value: string) =>
+    value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+
+  const formatMarkdown = (text: string) => {
+    const lines = text.split('\n')
+    let html = ''
+    let inList = false
+
+    lines.forEach((line) => {
+      const trimmed = line.trim()
+      if (trimmed.startsWith('# ')) {
+        if (inList) {
+          html += '</ul>'
+          inList = false
+        }
+        html += `<h2>${escapeHtml(trimmed.slice(2))}</h2>`
+      } else if (trimmed.startsWith('## ')) {
+        if (inList) {
+          html += '</ul>'
+          inList = false
+        }
+        html += `<h3>${escapeHtml(trimmed.slice(3))}</h3>`
+      } else if (trimmed.startsWith('### ')) {
+        if (inList) {
+          html += '</ul>'
+          inList = false
+        }
+        html += `<h4>${escapeHtml(trimmed.slice(4))}</h4>`
+      } else if (/^[-*]\s+/.test(trimmed)) {
+        if (!inList) {
+          html += '<ul>'
+          inList = true
+        }
+        html += `<li>${escapeHtml(trimmed.replace(/^[-*]\s+/, ''))}</li>`
+      } else if (trimmed === '') {
+        if (inList) {
+          html += '</ul>'
+          inList = false
+        }
+        html += '<br/>'
+      } else {
+        if (inList) {
+          html += '</ul>'
+          inList = false
+        }
+        html += `<p>${escapeHtml(trimmed)}</p>`
+      }
+    })
+
+    if (inList) html += '</ul>'
+    return html
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setRoteiro('')
-    
+
     try {
       const response = await fetch('http://localhost:8000/gerar-roteiro', {
         method: 'POST',
@@ -109,9 +165,10 @@ function App() {
         {roteiro && (
           <section className="result-section">
             <h2>🗺️ Seu Roteiro Inteligente</h2>
-            <div className="markdown-body">
-              <pre>{roteiro}</pre>
-            </div>
+            <div
+              className="markdown-body"
+              dangerouslySetInnerHTML={{ __html: formatMarkdown(roteiro) }}
+            />
           </section>
         )}
       </main>
