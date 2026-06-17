@@ -15,11 +15,11 @@ Antes de iniciar, certifique-se de ter os seguintes itens instalados no seu comp
 O coração do nosso sistema são os Agentes Inteligentes. Para que eles funcionem, você precisa fornecer as chaves de acesso (API Keys) dos modelos de linguagem.
 
 1. Na pasta `backend`, crie um arquivo chamado **`.env`** (ou renomeie o `.env.example` caso exista).
-2. O sistema utiliza a API da Anthropic (Claude 3.5 Sonnet) como cérebro dos Agentes. Abra o arquivo `.env` e insira as seguintes variáveis de ambiente:
+2. O sistema utiliza a API da Groq como cérebro dos Agentes. Abra o arquivo `.env` e insira as seguintes variáveis de ambiente:
 
 ```env
-# Chave da API da Anthropic
-ANTHROPIC_API_KEY=sk-ant-SuaChaveDeApiAqui
+# Chave da API da Groq
+GROQ_API_KEY=sua_chave_groq_aqui
 
 # Outras chaves necessárias pelos serviços MCP ou APIs Externas de Pesquisa
 # (Adicione aqui quaisquer chaves do Amadeus, OpenWeather, etc., que os MCPs necessitem)

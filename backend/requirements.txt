@@ -1,10 +1,15 @@
 fastapi[standard]
 uvicorn
 crewai
+groq
 langchain-anthropic
+langchain-community
 pydantic
 python-dotenv
 mcp
-amadeus
 requests
 duckduckgo-search
+ddgs
+requests
+duckduckgo-search
+ddgs
