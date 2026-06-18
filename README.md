@@ -105,3 +105,43 @@ Com os dois terminais rodando (Backend e Frontend):
 6. O roteiro final maravilhoso será exibido formatado na sua tela!
 
 Boa viagem! 🧳
+
+---
+
+## Notas do Frontend (Dependências opcionais)
+
+Este projeto utiliza `framer-motion` e `embla-carousel-react` para animações e o carrossel de hotéis. `embla-carousel-react` pode apresentar conflitos de peer-dependency com React 19; o código faz um import dinâmico e possui fallback nativo.
+
+Se você encontrar erros ao executar `npm install`, rode:
+
+```bash
+npm install --legacy-peer-deps
+```
+
+Isso foi usado durante o desenvolvimento para instalar as dependências opcionais sem bloquear a execução.
+
+## Build & Deploy Rápido
+
+- Instalar dependências frontend (caso não tenha usado `--legacy-peer-deps` antes):
+
+```bash
+cd frontend
+npm install --legacy-peer-deps
+```
+
+- Build de produção:
+
+```bash
+npm run build
+```
+
+- Iniciar backend em produção (exemplo):
+
+```bash
+cd backend
+uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+---
+
+Se quiser, eu posso adicionar testes automáticos (`vitest`) e um workflow de CI.

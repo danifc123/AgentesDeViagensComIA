@@ -5,17 +5,17 @@
   flex-direction: column;
   gap: 1.5rem;
   color: #e2e8f0;
-  background: #0a1628;
-  font-family: system-ui, sans-serif;
+  background: linear-gradient(135deg, #0B1020 0%, #111827 100%);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 .header {
   text-align: center;
-  max-width: 900px;
+  max-width: 1100px;
   margin: 0 auto;
-  background: linear-gradient(135deg, #0a1628 0%, #0d2445 50%, #0a1628 100%);
+  background: linear-gradient(135deg, #0B1020 0%, #0d2445 50%, #0B1020 100%);
   padding: 2rem;
-  border-radius: 12px;
+  border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.07);
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.25);
 }
@@ -36,19 +36,20 @@
 
 .main-content {
   display: grid;
-  gap: 1.5rem;
-  max-width: 900px;
+  gap: 1.75rem;
+  max-width: 1100px;
   width: 100%;
   margin: 0 auto;
 }
 
 .form-section,
 .result-section {
-  background: rgba(255, 255, 255, 0.04);
-  border: 0.5px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 2.25rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 }
 
 .travel-form {
@@ -184,10 +185,11 @@
 }
 
 .data-card {
-  background: rgba(255, 255, 255, 0.05);
-  border: 0.5px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  padding: 22px;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 1.75rem;
 }
 
 .data-card h3 {
@@ -672,3 +674,72 @@
   50% { opacity: 1; }
   100% { opacity: 0.55; }
 }
+
+/* New component styles */
+.weather-card {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.weather-left { flex: 1 }
+.weather-temp { font-size: 34px; font-weight: 700 }
+.weather-feels { color: #9aa3b2 }
+.weather-cond { margin-top: 6px }
+.temp-bar { height: 8px; background: rgba(255,255,255,0.04); border-radius: 8px; margin-top: 12px }
+.temp-fill { height: 100%; background: linear-gradient(90deg,#ffb86b,#ff7ab6); border-radius:8px }
+.weather-right { width: 260px }
+.weather-tip { display:flex; gap:8px; align-items:flex-start; padding:6px 0 }
+.tip-icon { font-size:14px }
+
+.flights-card { margin-top: 12px }
+.flights-table.modern { width: 100%; border-collapse: collapse }
+.flights-table.modern th { text-align:left; color:#9aa3b2; padding:10px 8px; font-size:13px }
+.flights-table.modern td { padding:12px 8px; border-top:1px solid rgba(255,255,255,0.02) }
+.best-flight { background: linear-gradient(90deg, rgba(255,255,255,0.02), transparent) }
+.price-cell { font-weight:700 }
+.btn { background:#1f6feb; color:white; padding:6px 10px; border-radius:8px; text-decoration:none }
+.btn-small { padding:6px 8px; font-size:13px }
+.btn-disabled { background:transparent; color:#6b7280; border-radius:8px; padding:6px 8px }
+
+.carousel-controls { display:flex; gap:8px; margin-top:8px }
+
+tr:focus { outline: 3px solid rgba(59,130,246,0.25); outline-offset: 3px }
+
+@media (max-width: 900px) {
+  .structured-grid { grid-template-columns: 1fr }
+  .hotel-slide { min-width: 220px }
+}
+
+.hotel-carousel { display:flex; gap:12px; overflow:auto; padding:6px 2px }
+.hotel-slide { min-width:260px }
+.hotel-card { background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent); padding:12px; border-radius:10px }
+.hotel-image { height:120px; background:linear-gradient(90deg,#223,#334); border-radius:8px; margin-bottom:8px }
+.hotel-header { display:flex; justify-content:space-between; align-items:center }
+.hotel-name { font-weight:700 }
+.hotel-price { color:#ffd18a }
+
+.budget-card { padding:8px }
+.budget-bar { height:10px; background:rgba(255,255,255,0.03); border-radius:10px }
+.budget-fill { height:100%; background:linear-gradient(90deg,#7af7c6,#3bd0ff); border-radius:10px }
+.budget-values { display:flex; gap:12px; margin-top:10px }
+.kv span { color:#9aa3b2 }
+.budget-status { margin-top:8px; font-weight:700 }
+.budget-status.ok { color:#7af7c6 }
+.budget-status.over { color:#ff7a7a }
+
+.tips-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px }
+.tip-card { background:rgba(255,255,255,0.02); padding:10px; border-radius:8px }
+.tip-icon { font-size:18px }
+.tip-title { font-weight:700 }
+
+/* Interaction & skeleton styles */
+.hotel-card:hover, .hotel-slide:hover { transform: translateY(-6px); transition: transform 180ms ease }
+.hotel-card.selected { box-shadow: 0 10px 30px rgba(0,0,0,0.45); border-color: rgba(123,184,240,0.32); }
+
+.flights-table tr:hover { background: rgba(255,255,255,0.02); cursor: pointer }
+.flights-table tr.selected { background: linear-gradient(90deg, rgba(34,197,94,0.06), rgba(34,197,94,0.02)); border-left: 3px solid rgba(34,197,94,0.6) }
+
+.skeleton-list { display:flex; flex-direction:column; gap:10px }
+.skeleton-row { height: 48px; background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.04)); border-radius:8px; animation: pulse 1.2s infinite }
+
+

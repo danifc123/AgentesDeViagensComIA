@@ -1,5 +1,13 @@
 import React, { useState } from 'react'
 import './App.css'
+import Header from './components/ui/Header'
+import Card from './components/ui/Card'
+import WeatherCard from './components/ui/WeatherCard'
+import FlightTable from './components/ui/FlightTable'
+import HotelCarousel from './components/ui/HotelCarousel'
+import BudgetCard from './components/ui/BudgetCard'
+import TipsGrid from './components/ui/TipsGrid'
+import HotelCard from './components/ui/HotelCard'
 
 type MarkdownBlock =
   | { type: 'paragraph'; text: string }
@@ -65,11 +73,19 @@ const normalizeFlightList = (flights: any): FlightOption[] => {
   if (Array.isArray(flights)) return flights
   if (typeof flights === 'object') {
     const items: FlightOption[] = []
+    // Check for structured object with selected/alternatives
     if (flights.selected) items.push(flights.selected)
     if (Array.isArray(flights.alternatives)) items.push(...flights.alternatives)
     if (Array.isArray(flights.options)) items.push(...flights.options)
     if (items.length > 0) return items
-    return Object.values(flights).filter((item) => item && typeof item === 'object') as FlightOption[]
+    
+    // Check if this is a single valid flight object (has airline, price, etc.)
+    if (flights.airline || flights.price || flights.departure) {
+      return [flights]
+    }
+    
+    // Otherwise try to extract objects from values
+    return Object.values(flights).filter((item) => item && typeof item === 'object' && (item as any).airline) as FlightOption[]
   }
   return []
 }
@@ -79,11 +95,19 @@ const normalizeHotelList = (hotels: any): HotelOption[] => {
   if (Array.isArray(hotels)) return hotels
   if (typeof hotels === 'object') {
     const items: HotelOption[] = []
+    // Check for structured object with selected/alternatives
     if (hotels.selected) items.push(hotels.selected)
     if (Array.isArray(hotels.alternatives)) items.push(...hotels.alternatives)
     if (Array.isArray(hotels.options)) items.push(...hotels.options)
     if (items.length > 0) return items
-    return Object.values(hotels).filter((item) => item && typeof item === 'object') as HotelOption[]
+    
+    // Check if this is a single valid hotel object (has name, price, etc.)
+    if (hotels.name || hotels.price_per_night || hotels.total_price) {
+      return [hotels]
+    }
+    
+    // Otherwise try to extract objects from values
+    return Object.values(hotels).filter((item) => item && typeof item === 'object' && (item as any).name) as HotelOption[]
   }
   return []
 }
@@ -112,83 +136,18 @@ function App() {
     let lastIndex = 0
     let match: RegExpExecArray | null = null
 
-    while (true) {
-      match = regex.exec(text)
-      if (match === null) break
-      if (match.index > lastIndex) {
-        parts.push(text.slice(lastIndex, match.index))
-      }
-
-      if (match[2]) {
-        parts.push(
-          <strong key={match.index}>{match[2]}</strong>
-        )
-      } else if (match[4]) {
-        parts.push(
-          <em key={match.index}>{match[4]}</em>
-        )
-      } else if (match[6] && match[7]) {
-        parts.push(
-          <a key={match.index} href={match[7]} target="_blank" rel="noreferrer">
-            {match[6]}
-          </a>
-        )
-      } else if (match[8]) {
-        parts.push(
-          <a key={match.index} href={match[8]} target="_blank" rel="noreferrer">
-            {match[8]}
-          </a>
-        )
-      }
-
+    while ((match = regex.exec(text)) !== null) {
+      if (match.index > lastIndex) parts.push(text.slice(lastIndex, match.index))
+      if (match[2]) parts.push(<strong key={match.index}>{match[2]}</strong>)
+      else if (match[4]) parts.push(<em key={match.index}>{match[4]}</em>)
+      else if (match[6] && match[7]) parts.push(<a key={match.index} href={match[7]} target="_blank" rel="noreferrer">{match[6]}</a>)
+      else if (match[8]) parts.push(<a key={match.index} href={match[8]} target="_blank" rel="noreferrer">{match[8]}</a>)
       lastIndex = regex.lastIndex
     }
 
-    if (lastIndex < text.length) {
-      parts.push(text.slice(lastIndex))
-    }
+    if (lastIndex < text.length) parts.push(text.slice(lastIndex))
 
-    return parts
-  }
-
-  function HotelCard({ name, price, attractions }: { name: string; price?: string; attractions: string[] }) {
-    const [open, setOpen] = useState<Record<number, boolean>>({})
-
-    return (
-      <div className="hotel-card">
-        <div className="hotel-header">
-          <div className="hotel-name">{renderInlineText(name)}</div>
-          {price && <div className="hotel-price">{renderInlineText(price)}</div>}
-        </div>
-
-        <div className="hotel-attractions">
-          {attractions.slice(0, 3).map((a, i) => {
-            const distanceMatch = a.match(/\(([^)]+km|[^)]+m|[^)]+km|[^)]+)\)/i)
-            const distance = distanceMatch ? distanceMatch[1] : null
-            const title = a.replace(/\s*\([^)]*\)\s*$/, '')
-            return (
-              <div className="attraction-item" key={i}>
-                <div className="attraction-main">
-                  <div className="attraction-title">{renderInlineText(title)}</div>
-                  <button
-                    className="attraction-btn"
-                    onClick={() => setOpen((s) => ({ ...s, [i]: !s[i] }))}
-                    aria-expanded={open[i] ? 'true' : 'false'}
-                  >
-                    {open[i] ? 'Ocultar distância' : 'Ver distância'}
-                  </button>
-                </div>
-                {open[i] && (
-                  <div className="attraction-detail">
-                    {distance ? `Distância: ${distance}` : 'Distância: não informada'}
-                  </div>
-                )}
-              </div>
-            )
-          })}
-        </div>
-      </div>
-    )
+    return <span>{parts}</span>
   }
 
   const parseMarkdown = (text: string): MarkdownSection[] => {
@@ -318,7 +277,7 @@ function App() {
         </div>
 
         <div className="structured-grid">
-          <article className="data-card">
+          <Card className="data-card">
             <h3>Detalhes da Viagem</h3>
             <div className="metric-row">
               <span>Origem</span>
@@ -336,141 +295,33 @@ function App() {
               <span>Orçamento</span>
               <strong>{travelBudget}</strong>
             </div>
-          </article>
+          </Card>
 
-          <article className="data-card">
+          <Card className="data-card">
             <h3>Orçamento</h3>
-            <div className="metric-row">
-              <span>Total</span>
-              <strong>{data.budget?.total || '—'}</strong>
-            </div>
-            <div className="metric-row">
-              <span>Usado</span>
-              <strong>{data.budget?.used || '—'}</strong>
-            </div>
-            <div className="metric-row">
-              <span>Restante</span>
-              <strong>{data.budget?.remaining || '—'}</strong>
-            </div>
-            <div className="metric-row">
-              <span>Status</span>
-              <strong>{data.budget?.status || '—'}</strong>
-            </div>
-          </article>
+            <BudgetCard budget={data.budget} />
+          </Card>
 
-          <article className="data-card climate-card">
+          <Card className="data-card climate-card">
             <h3>Clima</h3>
-            <div className="metric-row">
-              <span>Local</span>
-              <strong>{data.climate?.location || '—'}</strong>
-            </div>
-            <div className="metric-row">
-              <span>Temperatura</span>
-              <strong>{data.climate?.temperature || '—'}</strong>
-            </div>
-            <div className="metric-row">
-              <span>Sensação</span>
-              <strong>{data.climate?.feels_like || '—'}</strong>
-            </div>
-            <div className="metric-row">
-              <span>Condições</span>
-              <strong>{data.climate?.conditions || '—'}</strong>
-            </div>
-            {data.climate?.summary && <p>{renderInlineText(data.climate.summary)}</p>}
-          </article>
+            <WeatherCard climate={data.climate} />
+          </Card>
         </div>
 
-        <article className="data-card flights-card">
+        <Card className="data-card flights-card">
           <h3>Melhores Voos</h3>
-          {flights.length > 0 ? (
-            <div className="flights-table-wrapper">
-              <table className="flights-table">
-                <thead>
-                  <tr>
-                    <th>Companhia</th>
-                    <th>Preço</th>
-                    <th>Partida</th>
-                    <th>Chegada</th>
-                    <th>Duração</th>
-                    <th>Link</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {flights.map((flight, index) => (
-                    <tr key={index}>
-                      <td>{flight.airline || '—'}</td>
-                      <td>{flight.price ? `${flight.price} ${flight.currency || ''}` : '—'}</td>
-                      <td>{flight.departure || '—'}</td>
-                      <td>{flight.arrival || '—'}</td>
-                      <td>{flight.duration || '—'}</td>
-                      <td>
-                        {flight.purchase_url ? (
-                          <a href={String(flight.purchase_url)} target="_blank" rel="noreferrer">
-                            Comprar
-                          </a>
-                        ) : (
-                          'Sem link'
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <p>Não foi possível encontrar opções de voo estruturadas.</p>
-          )}
-        </article>
+          <FlightTable flights={flights} />
+        </Card>
 
-        <article className="data-card hotels-card">
+        <Card className="data-card hotels-card">
           <h3>Hospedagem</h3>
-          {hotels.length > 0 ? (
-            <div className="hotel-carousel">
-              {hotels.map((hotel, index) => (
-                <div className="hotel-slide" key={index}>
-                  <div className="hotel-card">
-                    <div className="hotel-header">
-                      <div className="hotel-name">{renderInlineText(hotel.name || 'Hotel')}</div>
-                      <div className="hotel-price">{hotel.total_price ? `R$ ${hotel.total_price}` : '—'}</div>
-                    </div>
-                    <div className="metric-row">
-                      <span>Preço / noite</span>
-                      <strong>{hotel.price_per_night || '—'}</strong>
-                    </div>
-                    <div className="metric-row">
-                      <span>Distância</span>
-                      <strong>{hotel.distance || '—'}</strong>
-                    </div>
-                    {hotel.attractions && hotel.attractions.length > 0 && (
-                      <div className="hotel-attractions">
-                        {hotel.attractions.slice(0, 3).map((attr, i) => (
-                          <div className="attraction-item" key={i}>
-                            {renderInlineText(attr)}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p>Não foi possível encontrar opções de hotel estruturadas.</p>
-          )}
-        </article>
+          <HotelCarousel hotels={hotels} />
+        </Card>
 
-        <article className="data-card tips-card">
+        <Card className="data-card tips-card">
           <h3>Dicas & Recomendações</h3>
-          {data.tips && data.tips.length > 0 ? (
-            <ul>
-              {data.tips.map((tip, index) => (
-                <li key={index}>{renderInlineText(tip)}</li>
-              ))}
-            </ul>
-          ) : (
-            <p>Sem dicas adicionais no momento.</p>
-          )}
-        </article>
+          <TipsGrid tips={data.tips} />
+        </Card>
       </div>
     )
   }
@@ -568,80 +419,70 @@ function App() {
 
   return (
     <div className="app-container">
-      <header className="header">
-        <h1>✈️ IAgent de Viagens</h1>
-        <p>Seu assistente inteligente para planejar a viagem perfeita</p>
-        <div className="agents-flow">
-          <span className="agent-chip agent-blue"><span className="dot" />Agente Pesquisador</span>
-          <span className="flow-arrow">→</span>
-          <span className="agent-chip agent-teal"><span className="dot" />Agente Analista</span>
-          <span className="flow-arrow">→</span>
-          <span className="agent-chip agent-amber"><span className="dot" />Agente Consultor</span>
-        </div>
-      </header>
-
+      <Header />
+      
       <main className="main-content">
-        <section className="form-section">
-          <form onSubmit={handleSubmit} className="travel-form">
-            <div className="input-group">
-              <label htmlFor="origem">Origem</label>
-              <input
-                id="origem"
-                type="text"
-                placeholder="Ex: São Paulo"
-                value={origem}
-                onChange={(e) => setOrigem(e.target.value)}
-                required
-              />
-            </div>
-            
-            <div className="input-group">
-              <label htmlFor="destino">Destino</label>
-              <input
-                id="destino"
-                type="text"
-                placeholder="Ex: Paris"
-                value={destino}
-                onChange={(e) => setDestino(e.target.value)}
-                required
-              />
-            </div>
+        {!roteiro ? (
+          <section className="form-section">
+            <form onSubmit={handleSubmit} className="travel-form">
+              <div className="input-group">
+                <label htmlFor="origem">Origem</label>
+                <input
+                  id="origem"
+                  type="text"
+                  placeholder="Ex: São Paulo"
+                  value={origem}
+                  onChange={(e) => setOrigem(e.target.value)}
+                  required
+                />
+              </div>
+              
+              <div className="input-group">
+                <label htmlFor="destino">Destino</label>
+                <input
+                  id="destino"
+                  type="text"
+                  placeholder="Ex: Paris"
+                  value={destino}
+                  onChange={(e) => setDestino(e.target.value)}
+                  required
+                />
+              </div>
 
-            <div className="input-group">
-              <label htmlFor="data">Data da Viagem</label>
-              <input
-                id="data"
-                type="text"
-                placeholder="Ex: 15 de Dezembro"
-                value={data}
-                onChange={(e) => setData(e.target.value)}
-                required
-              />
-            </div>
+              <div className="input-group">
+                <label htmlFor="data">Data da Viagem</label>
+                <input
+                  id="data"
+                  type="text"
+                  placeholder="Ex: 15 de Dezembro"
+                  value={data}
+                  onChange={(e) => setData(e.target.value)}
+                  required
+                />
+              </div>
 
-            <div className="input-group">
-              <label htmlFor="orcamento">Orçamento (R$)</label>
-              <input
-                id="orcamento"
-                type="number"
-                placeholder="Ex: 5000"
-                value={orcamento}
-                onChange={(e) => setOrcamento(e.target.value)}
-                required
-              />
-            </div>
+              <div className="input-group">
+                <label htmlFor="orcamento">Orçamento (R$)</label>
+                <input
+                  id="orcamento"
+                  type="number"
+                  placeholder="Ex: 5000"
+                  value={orcamento}
+                  onChange={(e) => setOrcamento(e.target.value)}
+                  required
+                />
+              </div>
 
-            <button type="submit" disabled={loading} className="submit-btn">
-              {loading ? (
-                <span className="loader">Planejando...</span>
-              ) : (
-                'Gerar Meu Roteiro'
-              )}
-            </button>
-          </form>
-        </section>
-
-        {roteiro && (
+              <button type="submit" disabled={loading} className="submit-btn">
+                {loading ? (
+                  <span className="loader">Planejando...</span>
+                ) : (
+                  'Gerar Meu Roteiro'
+                )}
+              </button>
+            </form>
+          </section>
+        ) : (
           <section className="result-section">
             <h2>🗺️ Seu Roteiro Inteligente</h2>
             {typeof roteiro === 'object' ? (

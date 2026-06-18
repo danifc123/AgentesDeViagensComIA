@@ -26,21 +26,28 @@ def read_root():
     return {"message": "Bem-vindo à API do Assistente de Viagem"}
 
 def parse_json_from_text(text: str):
+    # Remove <think> tags (both closed and unclosed)
     text = re.sub(r"<think>.*?</think>", "", text, flags=re.S)
-    text = re.sub(r"<think>.*", "", text, flags=re.S)
+    text = re.sub(r"<think>[\s\S]*?(?=```|$)", "", text)
+    
+    # Remove markdown code blocks
+    text = re.sub(r"```(?:json)?\s*", "", text)
+    text = re.sub(r"```", "", text)
+    
+    # Clean up whitespace
     text = re.sub(r"\n{3,}", "\n\n", text).strip()
 
     try:
         return json.loads(text)
     except json.JSONDecodeError:
         # tenta extrair o primeiro objeto JSON válido encontrado no texto
-        match = re.search(r"(\{.*\})", text, flags=re.S)
+        match = re.search(r"(\{[\s\S]*\})", text)
         if match:
             candidate = match.group(1)
             try:
                 return json.loads(candidate)
             except json.JSONDecodeError:
-                pass
+                print(f"Erro ao parsear JSON: {candidate[:100]}")
     return text
 
 @app.post("/gerar-roteiro")
