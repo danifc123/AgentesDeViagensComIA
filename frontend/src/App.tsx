@@ -126,7 +126,7 @@ interface RoteiroData {
 function App() {
   const [origem, setOrigem] = useState('Rio Verde')
   const [destino, setDestino] = useState('Rio de Janeiro')
-  const [data, setData] = useState('15 de Dezembro')
+  const [data, setData] = useState('2024-12-15') // ISO format for date input
   const [orcamento, setOrcamento] = useState('5000')
   const [loading, setLoading] = useState(false)
   const [roteiro, setRoteiro] = useState<RoteiroData | string | null>(null) // Usar backend REAL
@@ -263,8 +263,23 @@ function App() {
     const hotels = normalizeHotelList(data.hotels)
     const origin = data.route?.origem || data.route?.origin || 'Não informado'
     const destination = data.route?.destino || data.route?.destination || 'Não informado'
-    const travelDate = data.route?.data || data.route?.date || 'Não informado'
-    const travelBudget = data.route?.orcamento || data.budget?.total || 'Não informado'
+    
+    // Format date for display (dd/mm/aaaa)
+    const formatDate = (dateString: string) => {
+      const date = new Date(dateString)
+      const day = String(date.getDate()).padStart(2, '0')
+      const month = String(date.getMonth() + 1).padStart(2, '0')
+      const year = date.getFullYear()
+      return `${day}/${month}/${year}`
+    }
+    
+    const travelDate = data.route?.data || data.route?.date || data
+    const displayDate = typeof travelDate === 'string' ? formatDate(travelDate) : formatDate(data)
+    const userBudget = parseFloat(orcamento) || 5000
+    
+    // Get first suggested flight and hotel from agent
+    const suggestedFlight = flights[0]
+    const suggestedHotel = hotels[0]
 
     return (
       <div className="structured-roteiro">
@@ -274,7 +289,7 @@ function App() {
             <span className="trip-arrow">→</span>
             <span>{destination}</span>
           </div>
-          <div className="trip-date">{travelDate}</div>
+          <div className="trip-date">{displayDate}</div>
         </div>
 
         <div className="structured-grid">
@@ -290,17 +305,21 @@ function App() {
             </div>
             <div className="metric-row">
               <span>Data</span>
-              <strong>{travelDate}</strong>
+              <strong>{displayDate}</strong>
             </div>
             <div className="metric-row">
-              <span>Orçamento</span>
-              <strong>{travelBudget}</strong>
+              <span>Orçamento Total</span>
+              <strong>R$ {userBudget}</strong>
             </div>
           </Card>
 
           <Card className="data-card">
             <h3>Orçamento</h3>
-            <BudgetCard budget={data.budget} />
+            <BudgetCard 
+              userBudget={userBudget}
+              suggestedFlight={suggestedFlight}
+              suggestedHotel={suggestedHotel}
+            />
           </Card>
         </div>
 
@@ -459,8 +478,7 @@ function App() {
                 <label htmlFor="data">Data da Viagem</label>
                 <input
                   id="data"
-                  type="text"
-                  placeholder="Ex: 15 de Dezembro"
+                  type="date"
                   value={data}
                   onChange={(e) => setData(e.target.value)}
                   required

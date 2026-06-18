@@ -791,7 +791,8 @@ tr:focus { outline: 3px solid rgba(59,130,246,0.25); outline-offset: 3px }
 
 .budget-card { padding:8px }
 .budget-bar { height:10px; background:rgba(255,255,255,0.03); border-radius:10px }
-.budget-fill { height:100%; background:linear-gradient(90deg,#7af7c6,#3bd0ff); border-radius:10px }
+.budget-fill { height:100%; background:linear-gradient(90deg,#7af7c6,#3bd0ff); border-radius:10px; transition: width 0.3s ease; }
+.budget-fill.over { background: linear-gradient(90deg,#ff7a7a,#ff4444); }
 .budget-values { display:flex; gap:12px; margin-top:10px }
 .kv span { color:#9aa3b2 }
 .budget-status { margin-top:8px; font-weight:700 }
