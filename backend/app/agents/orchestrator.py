@@ -24,32 +24,44 @@ def criar_equipe_viagem(origem: str, destino: str, data: str, orcamento: float) 
 
     # 2. Definir Tarefas (Tasks)
     tarefa_voos = Task(
-        description=f'Pesquisar passagens aéreas de {origem} para {destino} na data {data}. O orçamento TOTAL da viagem é R${orcamento}. Liste as melhores opções de voos disponíveis e forneça os links de compra quando possível.',
-        expected_output='Lista com opções de voos (companhia, preço estimado, horário e link de compra).',
+        description=(
+            f'Pesquisar passagens aéreas de {origem} para {destino} na data {data}. O orçamento TOTAL da viagem é R${orcamento}. '
+            'Retorne APENAS UM OBJETO JSON válido com uma lista de opções de voo, onde cada voo tem: airline, price, currency, departure, arrival, duration, and purchase_url if available.'
+        ),
+        expected_output='JSON com lista de opções de voos: airline, price, currency, departure, arrival, duration e purchase_url.',
         agent=agente_voos
     )
 
     tarefa_hoteis = Task(
-        description=f'Pesquisar hotéis no destino {destino}. Após escolher, buscar na web atrações turísticas, restaurantes e feiras próximos aos hotéis encontrados.',
-        expected_output='Lista com opções de hotéis (preço estimado) e dicas de locais interessantes (restaurantes/atrações) ao redor de cada um.',
+        description=(
+            f'Pesquisar hotéis no destino {destino}. Para cada hotel, inclua nome, preço por noite, valor total para 3 noites, distância de uma atração chave, e até 3 atrações locais.'
+            ' Retorne APENAS UM OBJETO JSON válido com uma lista de hotéis e seus atributos.'
+        ),
+        expected_output='JSON com lista de hotéis: name, price_per_night, total_price, distance, attractions.',
         agent=agente_hoteis
     )
 
     tarefa_clima = Task(
-        description=f'Obter a previsão climática para {destino}. Baseado nisso, sugira o que levar na mala.',
-        expected_output='Resumo do clima e recomendações práticas de vestuário e preparo.',
+        description=(
+            f'Obter a previsão climática para {destino}. Retorne APENAS UM OBJETO JSON válido com os campos: location, temperature, feels_like, conditions, summary e recommendations (lista).'
+        ),
+        expected_output='JSON de clima com location, temperature, feels_like, conditions, summary e recommendations.',
         agent=agente_clima
     )
 
     tarefa_roteiro = Task(
         description=(
             f'O usuário quer viajar de {origem} para {destino} no dia {data} com um orçamento TOTAL de R${orcamento}. '
-            'Usando os resultados de voos, hotéis/atrações e clima, crie o Roteiro de Viagem definitivo em formato Markdown. '
-            'Calcule o custo estimado parcial (voos + hotel) e demonstre se está dentro do orçamento.'
+            'Usando os resultados de voos, hotéis e clima, gere APENAS UM OBJETO JSON válido com as seguintes chaves: '
+            'route, climate, flights, hotels, budget e tips. '
+            'route deve conter origem, destino, data e orçamento. '
+            'budget deve conter total, used, remaining e status. '
+            'tips deve ser uma lista de recomendações curtas. '
+            'Não inclua texto fora do JSON. O JSON deve ser válido para ser renderizado pelo frontend.'
         ),
-        expected_output='Um documento final (Markdown) contendo: Clima, Opções de Voos, Hospedagem com Atrações Próximas, e Análise de Orçamento.',
+        expected_output='Um objeto JSON válido contendo: route, climate, flights, hotels, budget e tips.',
         agent=orquestrador,
-        context=[tarefa_voos, tarefa_hoteis, tarefa_clima] # Essa tarefa espera as outras terminarem para pegar o contexto
+        context=[tarefa_voos, tarefa_hoteis, tarefa_clima]
     )
 
     # 3. Montar a Crew com processo sequencial

@@ -14,13 +14,97 @@ interface MarkdownSection {
   blocks: MarkdownBlock[]
 }
 
+interface RouteInfo {
+  origem?: string
+  destino?: string
+  origin?: string
+  destination?: string
+  date?: string
+  data?: string
+  orcamento?: string | number
+}
+
+interface BudgetInfo {
+  total?: string | number
+  used?: string | number
+  remaining?: string | number
+  status?: string
+}
+
+interface ClimateInfo {
+  location?: string
+  temperature?: string
+  feels_like?: string
+  conditions?: string
+  summary?: string
+  recommendations?: string[]
+}
+
+interface FlightOption {
+  airline?: string
+  price?: string | number
+  currency?: string
+  departure?: string
+  arrival?: string
+  duration?: string
+  purchase_url?: string
+}
+
+interface HotelOption {
+  name?: string
+  price_per_night?: string | number
+  total_price?: string | number
+  distance?: string
+  attractions?: string[]
+  currency?: string
+  booking_url?: string
+}
+
+const normalizeFlightList = (flights: any): FlightOption[] => {
+  if (!flights) return []
+  if (Array.isArray(flights)) return flights
+  if (typeof flights === 'object') {
+    const items: FlightOption[] = []
+    if (flights.selected) items.push(flights.selected)
+    if (Array.isArray(flights.alternatives)) items.push(...flights.alternatives)
+    if (Array.isArray(flights.options)) items.push(...flights.options)
+    if (items.length > 0) return items
+    return Object.values(flights).filter((item) => item && typeof item === 'object') as FlightOption[]
+  }
+  return []
+}
+
+const normalizeHotelList = (hotels: any): HotelOption[] => {
+  if (!hotels) return []
+  if (Array.isArray(hotels)) return hotels
+  if (typeof hotels === 'object') {
+    const items: HotelOption[] = []
+    if (hotels.selected) items.push(hotels.selected)
+    if (Array.isArray(hotels.alternatives)) items.push(...hotels.alternatives)
+    if (Array.isArray(hotels.options)) items.push(...hotels.options)
+    if (items.length > 0) return items
+    return Object.values(hotels).filter((item) => item && typeof item === 'object') as HotelOption[]
+  }
+  return []
+}
+
+interface RoteiroData {
+  route?: RouteInfo
+  budget?: BudgetInfo
+  climate?: ClimateInfo
+  flights?: FlightOption[]
+  hotels?: HotelOption[]
+  tips?: string[]
+  [key: string]: any
+}
+
 function App() {
   const [origem, setOrigem] = useState('')
   const [destino, setDestino] = useState('')
   const [data, setData] = useState('')
   const [orcamento, setOrcamento] = useState('')
   const [loading, setLoading] = useState(false)
-  const [roteiro, setRoteiro] = useState('')
+  const [roteiro, setRoteiro] = useState<RoteiroData | string | null>(null)
 
   const renderInlineText = (text: string) => {
     const parts: React.ReactNode[] = []
@@ -214,6 +298,172 @@ function App() {
     return sections
   }
 
+  const renderStructuredRoteiro = (data: RoteiroData) => {
+    const flights = normalizeFlightList(data.flights)
+    const hotels = normalizeHotelList(data.hotels)
+    const origin = data.route?.origem || data.route?.origin || 'Não informado'
+    const destination = data.route?.destino || data.route?.destination || 'Não informado'
+    const travelDate = data.route?.data || data.route?.date || 'Não informado'
+    const travelBudget = data.route?.orcamento || data.budget?.total || 'Não informado'
+
+    return (
+      <div className="structured-roteiro">
+        <div className="structured-grid">
+          <article className="data-card">
+            <h3>Detalhes da Viagem</h3>
+            <div className="metric-row">
+              <span>Origem</span>
+              <strong>{origin}</strong>
+            </div>
+            <div className="metric-row">
+              <span>Destino</span>
+              <strong>{destination}</strong>
+            </div>
+            <div className="metric-row">
+              <span>Data</span>
+              <strong>{travelDate}</strong>
+            </div>
+            <div className="metric-row">
+              <span>Orçamento</span>
+              <strong>{travelBudget}</strong>
+            </div>
+          </article>
+
+          <article className="data-card">
+            <h3>Orçamento</h3>
+            <div className="metric-row">
+              <span>Total</span>
+              <strong>{data.budget?.total || '—'}</strong>
+            </div>
+            <div className="metric-row">
+              <span>Usado</span>
+              <strong>{data.budget?.used || '—'}</strong>
+            </div>
+            <div className="metric-row">
+              <span>Restante</span>
+              <strong>{data.budget?.remaining || '—'}</strong>
+            </div>
+            <div className="metric-row">
+              <span>Status</span>
+              <strong>{data.budget?.status || '—'}</strong>
+            </div>
+          </article>
+
+          <article className="data-card climate-card">
+            <h3>Clima</h3>
+            <div className="metric-row">
+              <span>Local</span>
+              <strong>{data.climate?.location || '—'}</strong>
+            </div>
+            <div className="metric-row">
+              <span>Temperatura</span>
+              <strong>{data.climate?.temperature || '—'}</strong>
+            </div>
+            <div className="metric-row">
+              <span>Sensação</span>
+              <strong>{data.climate?.feels_like || '—'}</strong>
+            </div>
+            <div className="metric-row">
+              <span>Condições</span>
+              <strong>{data.climate?.conditions || '—'}</strong>
+            </div>
+            {data.climate?.summary && <p>{renderInlineText(data.climate.summary)}</p>}
+          </article>
+        </div>
+
+        <article className="data-card flights-card">
+          <h3>Melhores Voos</h3>
+          {flights.length > 0 ? (
+            <div className="flights-table-wrapper">
+              <table className="flights-table">
+                <thead>
+                  <tr>
+                    <th>Companhia</th>
+                    <th>Preço</th>
+                    <th>Partida</th>
+                    <th>Chegada</th>
+                    <th>Duração</th>
+                    <th>Link</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {flights.map((flight, index) => (
+                    <tr key={index}>
+                      <td>{flight.airline || '—'}</td>
+                      <td>{flight.price ? `${flight.price} ${flight.currency || ''}` : '—'}</td>
+                      <td>{flight.departure || '—'}</td>
+                      <td>{flight.arrival || '—'}</td>
+                      <td>{flight.duration || '—'}</td>
+                      <td>
+                        {flight.purchase_url ? (
+                          <a href={String(flight.purchase_url)} target="_blank" rel="noreferrer">
+                            Comprar
+                          </a>
+                        ) : (
+                          'Sem link'
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p>Não foi possível encontrar opções de voo estruturadas.</p>
+          )}
+        </article>
+
+        <article className="data-card hotels-card">
+          <h3>Hospedagem Sugerida</h3>
+          {hotels.length > 0 ? (
+            <div className="hotel-grid">
+              {hotels.map((hotel, index) => (
+                <div className="hotel-card" key={index}>
+                  <div className="hotel-header">
+                    <div className="hotel-name">{renderInlineText(hotel.name || 'Hotel')}</div>
+                    <div className="hotel-price">{hotel.total_price ? `R$ ${hotel.total_price}` : '—'}</div>
+                  </div>
+                  <div className="metric-row">
+                    <span>Preço / noite</span>
+                    <strong>{hotel.price_per_night || '—'}</strong>
+                  </div>
+                  <div className="metric-row">
+                    <span>Distância</span>
+                    <strong>{hotel.distance || '—'}</strong>
+                  </div>
+                  {hotel.attractions && hotel.attractions.length > 0 && (
+                    <div className="hotel-attractions">
+                      {hotel.attractions.slice(0, 3).map((attr, i) => (
+                        <div className="attraction-item" key={i}>
+                          {renderInlineText(attr)}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p>Não foi possível encontrar opções de hotel estruturadas.</p>
+          )}
+        </article>
+
+        <article className="data-card tips-card">
+          <h3>Dicas & Recomendações</h3>
+          {data.tips && data.tips.length > 0 ? (
+            <ul>
+              {data.tips.map((tip, index) => (
+                <li key={index}>{renderInlineText(tip)}</li>
+              ))}
+            </ul>
+          ) : (
+            <p>Sem dicas adicionais no momento.</p>
+          )}
+        </article>
+      </div>
+    )
+  }
+
   const renderMarkdown = (text: string) => {
     const sections = parseMarkdown(text)
     return sections.map((section, index) => (
@@ -376,9 +626,11 @@ function App() {
         {roteiro && (
           <section className="result-section">
             <h2>🗺️ Seu Roteiro Inteligente</h2>
-            <div className="markdown-body">
-              {renderMarkdown(roteiro)}
-            </div>
+            {typeof roteiro === 'object' ? (
+              <div className="structured-body">{renderStructuredRoteiro(roteiro)}</div>
+            ) : (
+              <div className="markdown-body">{renderMarkdown(String(roteiro))}</div>
+            )}
           </section>
         )}
       </main>

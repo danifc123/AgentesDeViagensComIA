@@ -1,3 +1,4 @@
+import json
 import re
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -24,6 +25,24 @@ class RoteiroRequest(BaseModel):
 def read_root():
     return {"message": "Bem-vindo à API do Assistente de Viagem"}
 
+def parse_json_from_text(text: str):
+    text = re.sub(r"<think>.*?</think>", "", text, flags=re.S)
+    text = re.sub(r"<think>.*", "", text, flags=re.S)
+    text = re.sub(r"\n{3,}", "\n\n", text).strip()
+
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        # tenta extrair o primeiro objeto JSON válido encontrado no texto
+        match = re.search(r"(\{.*\})", text, flags=re.S)
+        if match:
+            candidate = match.group(1)
+            try:
+                return json.loads(candidate)
+            except json.JSONDecodeError:
+                pass
+    return text
+
 @app.post("/gerar-roteiro")
 def gerar_roteiro(request: RoteiroRequest):
     resultado = rodar_orquestracao(
@@ -34,9 +53,10 @@ def gerar_roteiro(request: RoteiroRequest):
     )
 
     if isinstance(resultado, str):
-        # Remove blocos de raciocínio interno do CrewAI e normalize o texto
-        resultado = re.sub(r"<think>.*?</think>", "", resultado, flags=re.S)
-        resultado = re.sub(r"<think>.*", "", resultado, flags=re.S)
-        resultado = re.sub(r"\n{3,}", "\n\n", resultado).strip()
+        parsed = parse_json_from_text(resultado)
+        return {"roteiro": parsed}
 
-    return {"roteiro": resultado}
+    if isinstance(resultado, dict):
+        return {"roteiro": resultado}
+
+    return {"roteiro": str(resultado)}
