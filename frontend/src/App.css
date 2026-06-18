@@ -157,6 +157,7 @@
   background: rgba(255, 255, 255, 0.05);
   border: 0.5px solid rgba(255, 255, 255, 0.1);
   border-radius: 14px;
+  margin-bottom: 20px; /* Gap of 20px below the container */
 }
 
 .trip-path {
@@ -680,16 +681,69 @@
   display: flex;
   gap: 16px;
   align-items: center;
+  position: relative;
 }
-.weather-left { flex: 1 }
-.weather-temp { font-size: 34px; font-weight: 700 }
-.weather-feels { color: #9aa3b2 }
-.weather-cond { margin-top: 6px }
-.temp-bar { height: 8px; background: rgba(255,255,255,0.04); border-radius: 8px; margin-top: 12px }
-.temp-fill { height: 100%; background: linear-gradient(90deg,#ffb86b,#ff7ab6); border-radius:8px }
-.weather-right { width: 260px }
-.weather-tip { display:flex; gap:8px; align-items:flex-start; padding:6px 0 }
-.tip-icon { font-size:14px }
+
+.weather-left {
+  flex: 1;
+}
+
+.weather-icon-container {
+  margin-bottom: 0.5rem;
+}
+
+.weather-icon {
+  font-size: 2.5rem;
+}
+
+.weather-temp {
+  font-size: 34px;
+  font-weight: 700;
+}
+
+.weather-feels {
+  color: #9aa3b2;
+}
+
+.weather-cond {
+  margin-top: 6px;
+}
+
+.temp-bar {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  margin-top: 12px;
+}
+
+.temp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ffb86b, #ff7ab6);
+  border-radius: 8px;
+}
+
+.weather-right {
+  width: 260px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.weather-card:hover .weather-right {
+  opacity: 1;
+  visibility: visible;
+}
+
+.weather-tip {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 6px 0;
+}
+
+.tip-icon {
+  font-size: 14px;
+}
 
 .flights-card { margin-top: 12px }
 .flights-table.modern { width: 100%; border-collapse: collapse }

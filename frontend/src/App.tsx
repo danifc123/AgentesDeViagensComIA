@@ -8,6 +8,7 @@ import HotelCarousel from './components/ui/HotelCarousel'
 import BudgetCard from './components/ui/BudgetCard'
 import TipsGrid from './components/ui/TipsGrid'
 import HotelCard from './components/ui/HotelCard'
+import { mockRoteiro } from './mockData'
 
 type MarkdownBlock =
   | { type: 'paragraph'; text: string }
@@ -123,12 +124,12 @@ interface RoteiroData {
 }
 
 function App() {
-  const [origem, setOrigem] = useState('')
-  const [destino, setDestino] = useState('')
-  const [data, setData] = useState('')
-  const [orcamento, setOrcamento] = useState('')
+  const [origem, setOrigem] = useState('Rio Verde')
+  const [destino, setDestino] = useState('Rio de Janeiro')
+  const [data, setData] = useState('15 de Dezembro')
+  const [orcamento, setOrcamento] = useState('5000')
   const [loading, setLoading] = useState(false)
-  const [roteiro, setRoteiro] = useState<RoteiroData | string | null>(null)
+  const [roteiro, setRoteiro] = useState<RoteiroData | string | null>(mockRoteiro) // Usar mock diretamente
 
   const renderInlineText = (text: string) => {
     const parts: React.ReactNode[] = []
