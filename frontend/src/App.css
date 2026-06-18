@@ -293,9 +293,14 @@
 
 .hotel-image {
   height: 120px;
-  background: linear-gradient(135deg, rgba(55, 138, 221, 0.5), rgba(29, 158, 117, 0.5));
+  width: 100%;
+  object-fit: cover;
   border-radius: 8px;
   margin-bottom: 12px;
+}
+
+.hotel-image-placeholder {
+  background: linear-gradient(135deg, rgba(55, 138, 221, 0.5), rgba(29, 158, 117, 0.5));
 }
 
 .hotel-header {

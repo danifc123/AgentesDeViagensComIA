@@ -129,7 +129,7 @@ function App() {
   const [data, setData] = useState('15 de Dezembro')
   const [orcamento, setOrcamento] = useState('5000')
   const [loading, setLoading] = useState(false)
-  const [roteiro, setRoteiro] = useState<RoteiroData | string | null>(mockRoteiro) // Usar mock diretamente
+  const [roteiro, setRoteiro] = useState<RoteiroData | string | null>(mockRoteiro) // Usar mock novamente
 
   const renderInlineText = (text: string) => {
     const parts: React.ReactNode[] = []

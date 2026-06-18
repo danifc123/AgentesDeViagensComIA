@@ -34,10 +34,13 @@ def criar_equipe_viagem(origem: str, destino: str, data: str, orcamento: float) 
 
     tarefa_hoteis = Task(
         description=(
-            f'Pesquisar hotéis no destino {destino}. Para cada hotel, inclua nome, preço por noite, valor total para 3 noites, distância de uma atração chave, e até 3 atrações locais.'
+            f'Pesquisar hotéis no destino {destino}. Para cada hotel, inclua: '
+            'name, price_per_night, total_price para 3 noites, distance de uma atração chave, '
+            'image (URL real da foto do hotel), booking_url (link para reservar o hotel), '
+            'e até 3 atrações locais.'
             ' Retorne APENAS UM OBJETO JSON válido com uma lista de hotéis e seus atributos.'
         ),
-        expected_output='JSON com lista de hotéis: name, price_per_night, total_price, distance, attractions.',
+        expected_output='JSON com lista de hotéis: name, price_per_night, total_price, distance, image, booking_url, attractions.',
         agent=agente_hoteis
     )
 
@@ -57,9 +60,10 @@ def criar_equipe_viagem(origem: str, destino: str, data: str, orcamento: float) 
             'route deve conter origem, destino, data e orçamento. '
             'budget deve conter total, used, remaining e status. '
             'tips deve ser uma lista de recomendações curtas. '
+            'hotels deve incluir name, price_per_night, total_price, distance, image, booking_url e attractions. '
             'Não inclua texto fora do JSON. O JSON deve ser válido para ser renderizado pelo frontend.'
         ),
-        expected_output='Um objeto JSON válido contendo: route, climate, flights, hotels, budget e tips.',
+        expected_output='Um objeto JSON válido contendo: route, climate, flights, hotels (com image e booking_url), budget e tips.',
         agent=orquestrador,
         context=[tarefa_voos, tarefa_hoteis, tarefa_clima]
     )

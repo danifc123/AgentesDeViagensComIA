@@ -150,9 +150,62 @@ def tool_buscar_voos(origem: str, destino: str, data: str) -> str:
 def tool_buscar_hoteis(cidade: str) -> str:
     """
     Placeholder para busca de hotéis — Antes usava Amadeus.
-    Atualmente não há um provedor configurado; retorne uma mensagem clara.
+    Retorna dados mockados de hotéis para teste, incluindo URLs de imagens do Unsplash.
     """
-    return "Busca de hotéis via Amadeus removida. Configure um provedor de hotéis ou MCP."
+    import random
+
+    # Lista de URLs de imagens de hotéis do Unsplash
+    hotel_images = [
+        "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400",
+        "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=400",
+        "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=400",
+        "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=400"
+    ]
+
+    # Lista de pontos turísticos comuns
+    pontos_turisticos = {
+        "Rio de Janeiro": ["Praia de Copacabana", "Cristo Redentor", "Pão de Açúcar"],
+        "São Paulo": ["Avenida Paulista", "Ibirapuera", "Mercado Municipal"],
+        "Paris": ["Torre Eiffel", "Louvre", "Champs-Élysées"],
+        "Nova York": ["Times Square", "Central Park", "Empire State Building"]
+    }
+
+    # Dados de exemplo
+    hoteis_exemplo = [
+        {
+            "name": f"Hotel Premium {cidade}",
+            "price_per_night": 350,
+            "total_price": 1050,
+            "distance": "100m do centro",
+            "image": random.choice(hotel_images),
+            "booking_url": "https://www.booking.com",
+            "attractions": pontos_turisticos.get(cidade, ["Atração 1", "Atração 2", "Atração 3"])
+        },
+        {
+            "name": f"Hostel Econômico {cidade}",
+            "price_per_night": 120,
+            "total_price": 360,
+            "distance": "500m da praia",
+            "image": random.choice(hotel_images),
+            "booking_url": "https://www.hostelworld.com",
+            "attractions": pontos_turisticos.get(cidade, ["Atração A", "Atração B", "Atração C"])
+        }
+    ]
+
+    # Retorna como texto legível para o agente
+    result = []
+    for hotel in hoteis_exemplo:
+        result.append(
+            f"Hotel: {hotel['name']}\n"
+            f"Preço por noite: R${hotel['price_per_night']}\n"
+            f"Total para 3 noites: R${hotel['total_price']}\n"
+            f"Distância: {hotel['distance']}\n"
+            f"Imagem: {hotel['image']}\n"
+            f"Link para reservar: {hotel['booking_url']}\n"
+            f"Atrações próximas: {', '.join(hotel['attractions'])}\n"
+        )
+
+    return "\n".join(result)
 
 
 @tool("Buscar Clima via OpenWeather MCP")

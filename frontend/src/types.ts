@@ -39,6 +39,7 @@ export interface HotelOption {
   price_per_night?: string | number
   total_price?: string | number
   distance?: string
+  image?: string
   attractions?: (string | { name?: string; distance?: string })[]
   currency?: string
   booking_url?: string
