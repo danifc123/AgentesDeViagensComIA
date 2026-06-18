@@ -4,6 +4,14 @@ import type { HotelOption } from '../../types'
 export default function HotelCarousel({ hotels }: { hotels: HotelOption[] }) {
   const [selected, setSelected] = useState<number | null>(null)
 
+  const handleSlideClick = (idx: number, e: React.MouseEvent) => {
+    // If click is on a link, don't select the slide
+    if ((e.target as HTMLElement).closest('a')) {
+      return;
+    }
+    setSelected(idx);
+  }
+
   // fallback: native horizontal scrollable list with selection (stable version)
   return (
     <div className="hotel-carousel" role="list">
@@ -12,7 +20,7 @@ export default function HotelCarousel({ hotels }: { hotels: HotelOption[] }) {
           className={`hotel-slide ${selected === idx ? 'selected' : ''}`}
           key={idx}
           role="listitem"
-          onClick={() => setSelected(idx)}
+          onClick={(e) => handleSlideClick(idx, e)}
         >
           <div className={`hotel-card ${selected === idx ? 'selected' : ''}`}>
             <div className="hotel-image" />

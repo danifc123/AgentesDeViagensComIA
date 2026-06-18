@@ -13,7 +13,7 @@ export default function WeatherCard({ climate }: { climate?: ClimateInfo }) {
     } else if (lowerCond.includes('sol') || lowerCond.includes('sun')) {
       return { icon: '☀️', color: '#ff9f43' } // Orange
     } else {
-      return { icon: '☁️', color: '#94a3b8' } // Gray
+      return { icon: '☁️', color: '#94a1aa' } // Gray
     }
   }
 
@@ -22,11 +22,6 @@ export default function WeatherCard({ climate }: { climate?: ClimateInfo }) {
   return (
     <div className="weather-card">
       <div className="weather-left">
-        <div className="weather-icon-container">
-          <span className="weather-icon" style={{ color: weather.color }}>
-            {weather.icon}
-          </span>
-        </div>
         <div className="weather-temp">{temp}°</div>
         <div className="weather-feels">Sensação: {feels}°C</div>
         <div className="weather-cond">{cond}</div>
@@ -36,14 +31,21 @@ export default function WeatherCard({ climate }: { climate?: ClimateInfo }) {
       </div>
 
       <div className="weather-right">
-        {climate?.recommendations?.map((r, i) => (
-          <div className="weather-tip" key={i}>
-            <div className="tip-icon">▣</div>
-            <div className="tip-body">
-              <div className="tip-title">{r}</div>
+        {/* Show weather icon when not hovering */}
+        <div className="weather-icon-container-right">
+          <span className="weather-big-icon" style={{ color: weather.color }}>{weather.icon}</span>
+        </div>
+        {/* Show tips when hovering */}
+        <div className="weather-tips-content">
+          {climate?.recommendations?.map((r, i) => (
+            <div className="weather-tip" key={i}>
+              <div className="tip-icon">▣</div>
+              <div className="tip-body">
+                <div className="tip-title">{r}</div>
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   )

@@ -291,13 +291,11 @@
   min-width: 260px;
 }
 
-.hotel-card::before {
-  content: '';
-  display: block;
-  height: 140px;
-  margin-bottom: 1rem;
-  border-radius: 12px;
+.hotel-image {
+  height: 120px;
   background: linear-gradient(135deg, rgba(55, 138, 221, 0.5), rgba(29, 158, 117, 0.5));
+  border-radius: 8px;
+  margin-bottom: 12px;
 }
 
 .hotel-header {
@@ -714,12 +712,40 @@
 
 .weather-right {
   width: 260px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 150px;
+}
+
+.weather-icon-container-right {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.weather-big-icon {
+  font-size: 64px;
+}
+
+.weather-tips-content {
+  position: absolute;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease, visibility 0.3s ease;
+  width: 100%;
 }
 
-.weather-card:hover .weather-right {
+.weather-card:hover .weather-icon-container-right {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.weather-card:hover .weather-tips-content {
   opacity: 1;
   visibility: visible;
 }
