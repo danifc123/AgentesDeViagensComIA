@@ -194,6 +194,51 @@
   margin: 1rem 0;
 }
 
+.hotel-card {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(148, 163, 184, 0.08);
+  padding: 14px;
+  border-radius: 12px;
+  margin-bottom: 0.9rem;
+}
+
+.hotel-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 0.75rem;
+}
+
+.hotel-name {
+  font-weight: 800;
+  color: #e6f0ff;
+}
+
+.hotel-price {
+  color: #c7f9d4;
+  font-weight: 700;
+}
+
+.hotel-attractions {
+  display: grid;
+  gap: 10px;
+}
+
+.attraction-item {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(148,163,184,0.06);
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.attraction-main { display:flex; justify-content:space-between; align-items:center; gap:8px }
+.attraction-title { color: #e2e8f0 }
+.attraction-btn { background:transparent; border:1px solid rgba(148,163,184,0.12); color:#93c5fd; padding:6px 8px; border-radius:8px; cursor:pointer }
+.attraction-detail { margin-top:8px; color:#bcdffd }
+
+.spacer { height: 1rem }
+
 .markdown-table-wrapper table {
   width: 100%;
   border-collapse: collapse;

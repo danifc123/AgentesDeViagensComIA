@@ -6,6 +6,7 @@ type MarkdownBlock =
   | { type: 'list'; items: string[] }
   | { type: 'subtitle'; text: string }
   | { type: 'table'; rows: string[][] }
+  | { type: 'hotel'; name: string; price?: string; attractions: string[] }
   | { type: 'spacer' }
 
 interface MarkdownSection {
@@ -27,7 +28,9 @@ function App() {
     let lastIndex = 0
     let match: RegExpExecArray | null = null
 
-    while ((match = regex.exec(text)) !== null) {
+    while (true) {
+      match = regex.exec(text)
+      if (match === null) break
       if (match.index > lastIndex) {
         parts.push(text.slice(lastIndex, match.index))
       }
@@ -64,6 +67,46 @@ function App() {
     return parts
   }
 
+  function HotelCard({ name, price, attractions }: { name: string; price?: string; attractions: string[] }) {
+    const [open, setOpen] = useState<Record<number, boolean>>({})
+
+    return (
+      <div className="hotel-card">
+        <div className="hotel-header">
+          <div className="hotel-name">{renderInlineText(name)}</div>
+          {price && <div className="hotel-price">{renderInlineText(price)}</div>}
+        </div>
+
+        <div className="hotel-attractions">
+          {attractions.slice(0, 3).map((a, i) => {
+            const distanceMatch = a.match(/\(([^)]+km|[^)]+m|[^)]+km|[^)]+)\)/i)
+            const distance = distanceMatch ? distanceMatch[1] : null
+            const title = a.replace(/\s*\([^)]*\)\s*$/, '')
+            return (
+              <div className="attraction-item" key={i}>
+                <div className="attraction-main">
+                  <div className="attraction-title">{renderInlineText(title)}</div>
+                  <button
+                    className="attraction-btn"
+                    onClick={() => setOpen((s) => ({ ...s, [i]: !s[i] }))}
+                    aria-expanded={open[i] ? 'true' : 'false'}
+                  >
+                    {open[i] ? 'Ocultar distância' : 'Ver distância'}
+                  </button>
+                </div>
+                {open[i] && (
+                  <div className="attraction-detail">
+                    {distance ? `Distância: ${distance}` : 'Distância: não informada'}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    )
+  }
+
   const parseMarkdown = (text: string): MarkdownSection[] => {
     const lines = text.split('\n')
     const sections: MarkdownSection[] = []
@@ -98,8 +141,45 @@ function App() {
       }
     }
 
-    lines.forEach((line) => {
-      const trimmed = line.trim()
+    for (let i = 0; i < lines.length; i++) {
+      const raw = lines[i]
+      const trimmed = raw.trim()
+
+      // Detect hotel header like '### 1. Hotel Name (Premium)' or '1. Hotel Name'
+      const hotelMatch = trimmed.match(/^(?:#{1,6}\s*)?(\d+)\.\s*(.+)$/)
+      if (hotelMatch) {
+        flushList()
+        // Close current section if it already has content
+        if (current.blocks.length || current.title !== 'Resumo') pushCurrent()
+        const name = hotelMatch[2].replace(/^\s*-+|\s*:+$/g, '')
+        // collect following lines for price and attractions
+        let price: string | undefined = undefined
+        const attractions: string[] = []
+        let j = i + 1
+        for (; j < lines.length; j++) {
+          const ln = lines[j].trim()
+          if (!ln) break
+          // stop if next hotel or section
+          if (/^(?:#{1,6}\s*)?\d+\./.test(ln)) break
+          if (ln.startsWith('## ') || ln.startsWith('# ')) break
+          const priceMatch = ln.match(/^(?:\*\*)?Preço(?:\*\*)?[:\s]*([A-Za-z0-9\s$,.]+)/i)
+          if (priceMatch) {
+            price = priceMatch[1].trim()
+            continue
+          }
+          if (/^[-*]\s+/.test(ln) || /^\d+\)\s+/.test(ln)) {
+            const item = ln.replace(/^[-*]\s+|^\d+\)\s+/, '').trim()
+            attractions.push(item)
+            continue
+          }
+        }
+        // push hotel block
+        current = { title: 'Hospedagem', blocks: [] }
+        current.blocks.push({ type: 'hotel', name: name, price: price, attractions })
+        pushCurrent()
+        i = j - 1
+        continue
+      }
 
       if (trimmed.startsWith('# ')) {
         flushList()
@@ -127,7 +207,7 @@ function App() {
         flushList()
         current.blocks.push({ type: 'paragraph', text: trimmed })
       }
-    })
+    }
 
     flushList()
     pushCurrent()
@@ -152,6 +232,14 @@ function App() {
               )
             }
             return <p key={blockIndex}>{renderInlineText(block.text)}</p>
+          }
+          if (block.type === 'hotel') {
+            const h = block as MarkdownBlock & { type: 'hotel'; name: string; price?: string; attractions: string[] }
+            return (
+              <div key={blockIndex}>
+                <HotelCard name={h.name} price={h.price} attractions={h.attractions || []} />
+              </div>
+            )
           }
           if (block.type === 'subtitle') {
             return <h4 key={blockIndex}>{block.text}</h4>
@@ -182,7 +270,7 @@ function App() {
               </div>
             )
           }
-          return <div key={blockIndex} style={{ height: '1rem' }} />
+          return <div key={blockIndex} className="spacer" />
         })}
       </article>
     ))

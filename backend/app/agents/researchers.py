@@ -4,6 +4,7 @@ from app.tools.mcp_client_tools import tool_buscar_voos, tool_buscar_hoteis, too
 from pydantic import Field
 import groq
 import os
+import time
 from typing import Any
 
 class GroqLLM(BaseLLM):
@@ -12,7 +13,7 @@ class GroqLLM(BaseLLM):
     llm_type: str = "groq"
     provider: str = "groq"
     model: str = "qwen/qwen3-32b"
-    temperature: float | None = 0.3
+    temperature: float | None = 0.25
     api_key: str | None = None
     base_url: str | None = None
     stop: list[str] = Field(default_factory=list)
@@ -71,9 +72,21 @@ class GroqLLM(BaseLLM):
         if self.additional_params.get("max_tokens") is not None:
             request_kwargs["max_tokens"] = self.additional_params["max_tokens"]
 
-        response = self.client.chat.completions.create(
-            **{k: v for k, v in request_kwargs.items() if v is not None}
-        )
+        backoff = 1.0
+        for attempt in range(3):
+            try:
+                response = self.client.chat.completions.create(
+                    **{k: v for k, v in request_kwargs.items() if v is not None}
+                )
+                break
+            except Exception as exc:
+                msg = str(exc)
+                if "rate limit" in msg.lower() or "429" in msg or "tokens per minute" in msg.lower():
+                    if attempt < 2:
+                        time.sleep(backoff)
+                        backoff *= 2
+                        continue
+                raise
         choice = response.choices[0]
         message = getattr(choice, "message", None)
 
