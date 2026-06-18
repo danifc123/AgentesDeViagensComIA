@@ -308,6 +308,15 @@ function App() {
 
     return (
       <div className="structured-roteiro">
+        <div className="trip-summary">
+          <div className="trip-path">
+            <span>{origin}</span>
+            <span className="trip-arrow">→</span>
+            <span>{destination}</span>
+          </div>
+          <div className="trip-date">{travelDate}</div>
+        </div>
+
         <div className="structured-grid">
           <article className="data-card">
             <h3>Detalhes da Viagem</h3>
@@ -414,32 +423,34 @@ function App() {
         </article>
 
         <article className="data-card hotels-card">
-          <h3>Hospedagem Sugerida</h3>
+          <h3>Hospedagem</h3>
           {hotels.length > 0 ? (
-            <div className="hotel-grid">
+            <div className="hotel-carousel">
               {hotels.map((hotel, index) => (
-                <div className="hotel-card" key={index}>
-                  <div className="hotel-header">
-                    <div className="hotel-name">{renderInlineText(hotel.name || 'Hotel')}</div>
-                    <div className="hotel-price">{hotel.total_price ? `R$ ${hotel.total_price}` : '—'}</div>
-                  </div>
-                  <div className="metric-row">
-                    <span>Preço / noite</span>
-                    <strong>{hotel.price_per_night || '—'}</strong>
-                  </div>
-                  <div className="metric-row">
-                    <span>Distância</span>
-                    <strong>{hotel.distance || '—'}</strong>
-                  </div>
-                  {hotel.attractions && hotel.attractions.length > 0 && (
-                    <div className="hotel-attractions">
-                      {hotel.attractions.slice(0, 3).map((attr, i) => (
-                        <div className="attraction-item" key={i}>
-                          {renderInlineText(attr)}
-                        </div>
-                      ))}
+                <div className="hotel-slide" key={index}>
+                  <div className="hotel-card">
+                    <div className="hotel-header">
+                      <div className="hotel-name">{renderInlineText(hotel.name || 'Hotel')}</div>
+                      <div className="hotel-price">{hotel.total_price ? `R$ ${hotel.total_price}` : '—'}</div>
                     </div>
-                  )}
+                    <div className="metric-row">
+                      <span>Preço / noite</span>
+                      <strong>{hotel.price_per_night || '—'}</strong>
+                    </div>
+                    <div className="metric-row">
+                      <span>Distância</span>
+                      <strong>{hotel.distance || '—'}</strong>
+                    </div>
+                    {hotel.attractions && hotel.attractions.length > 0 && (
+                      <div className="hotel-attractions">
+                        {hotel.attractions.slice(0, 3).map((attr, i) => (
+                          <div className="attraction-item" key={i}>
+                            {renderInlineText(attr)}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -560,6 +571,13 @@ function App() {
       <header className="header">
         <h1>✈️ IAgent de Viagens</h1>
         <p>Seu assistente inteligente para planejar a viagem perfeita</p>
+        <div className="agents-flow">
+          <span className="agent-chip agent-blue"><span className="dot" />Agente Pesquisador</span>
+          <span className="flow-arrow">→</span>
+          <span className="agent-chip agent-teal"><span className="dot" />Agente Analista</span>
+          <span className="flow-arrow">→</span>
+          <span className="agent-chip agent-amber"><span className="dot" />Agente Consultor</span>
+        </div>
       </header>
 
       <main className="main-content">
