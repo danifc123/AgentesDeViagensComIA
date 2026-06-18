@@ -23,16 +23,6 @@ export default function HotelCarousel({ hotels }: { hotels: HotelOption[] }) {
           onClick={(e) => handleSlideClick(idx, e)}
         >
           <div className={`hotel-card ${selected === idx ? 'selected' : ''}`}>
-            {hotel.image ? (
-              <img 
-                src={hotel.image} 
-                alt={hotel.name || 'Hotel'} 
-                className="hotel-image" 
-                loading="lazy"
-              />
-            ) : (
-              <div className="hotel-image hotel-image-placeholder" />
-            )}
             <div className="hotel-header">
               <div className="hotel-name">{hotel.name || 'Hotel'}</div>
               <div className="hotel-price">{hotel.total_price ? `R$ ${hotel.total_price}` : '—'}</div>

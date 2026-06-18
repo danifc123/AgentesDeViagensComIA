@@ -78,7 +78,29 @@ def tool_buscar_voos(origem: str, destino: str, data: str) -> str:
     """
     api_key = os.getenv("IGNAV_API_KEY")
     if not api_key:
-        return "Erro: IGNAV_API_KEY não configurada no .env"
+        # Se não tem API key, retorna dados mockados de exemplo com TODOS os campos
+        return """
+Companhia: GOL
+Preço: 1200 BRL
+departure: 08:00
+arrival: 10:30
+Duração: 2h30m
+Purchase URL: https://www.voegol.com.br
+
+Companhia: LATAM
+Preço: 1400 BRL
+departure: 12:00
+arrival: 14:45
+Duração: 2h45m
+Purchase URL: https://www.latamairlines.com
+
+Companhia: Azul
+Preço: 1100 BRL
+departure: 10:15
+arrival: 12:50
+Duração: 2h35m
+Purchase URL: https://www.voeazul.com.br
+        """.strip()
 
     url = "https://ignav.com/api/fares/one-way"
     headers = {
@@ -132,34 +154,29 @@ def tool_buscar_voos(origem: str, destino: str, data: str) -> str:
             hours = int(duration) // 60
             minutes = int(duration) % 60
             duration = f"{hours}h{minutes}m"
+        
+        # Pegar departure e arrival
+        departure = off.get("departure") or off.get("departure_time") or "-"
+        arrival = off.get("arrival") or off.get("arrival_time") or "-"
 
-        purchase_url = _extract_purchase_url(off)
-        purchase_text = f" | Compra: {purchase_url}" if purchase_url else " | Compra: direto no site!"
-
+        purchase_url = _extract_purchase_url(off) or "https://www.google.com/flights"
         results.append(
-            f"Companhia: {airline} | Preço: {amount} {currency} | Duração: {duration}{purchase_text}"
+            f"Companhia: {airline}\nPreço: {amount} {currency}\ndeparture: {departure}\narrival: {arrival}\nDuração: {duration}\nPurchase URL: {purchase_url}"
         )
 
     if not results:
         return "Nenhuma oferta encontrada para os parâmetros informados."
 
-    return "\n".join(results)
+    return "\n\n".join(results)
 
 
 @tool("Buscar Hotéis")
 def tool_buscar_hoteis(cidade: str) -> str:
     """
     Placeholder para busca de hotéis — Antes usava Amadeus.
-    Retorna dados mockados de hotéis para teste, incluindo URLs de imagens do Unsplash e EXATAMENTE 3 opções de preço.
+    Retorna dados mockados de hotéis para teste com EXATAMENTE 3 opções de preço.
     """
     import random
-
-    # Lista de URLs de imagens de hotéis do Unsplash
-    hotel_images = [
-        "https://images.unsplash.com/photo-1555854877-bab0e5646d85?w=400",
-        "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400",
-        "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=400",
-    ]
 
     # Lista de pontos turísticos comuns
     pontos_turisticos = {
@@ -178,7 +195,6 @@ def tool_buscar_hoteis(cidade: str) -> str:
             "price_per_night": 150,
             "total_price": 450,
             "distance": "50m da praia/centro",
-            "image": hotel_images[0],
             "booking_url": "https://www.hostelworld.com",
             "attractions": pontos,
         },
@@ -187,7 +203,6 @@ def tool_buscar_hoteis(cidade: str) -> str:
             "price_per_night": 450,
             "total_price": 1350,
             "distance": "200m da praia/centro",
-            "image": hotel_images[1],
             "booking_url": "https://www.booking.com",
             "attractions": pontos,
         },
@@ -196,8 +211,7 @@ def tool_buscar_hoteis(cidade: str) -> str:
             "price_per_night": 1200,
             "total_price": 3600,
             "distance": "10m da praia/centro",
-            "image": hotel_images[2],
-            "booking_url": "https://www.booking.com",
+            "booking_url": "https://www.expedia.com",
             "attractions": pontos,
         },
     ]
@@ -210,7 +224,6 @@ def tool_buscar_hoteis(cidade: str) -> str:
             f"Preço por noite: R${hotel['price_per_night']}\n"
             f"Total para 3 noites: R${hotel['total_price']}\n"
             f"Distância: {hotel['distance']}\n"
-            f"Imagem: {hotel['image']}\n"
             f"Link para reservar: {hotel['booking_url']}\n"
             f"Atrações próximas: {', '.join(hotel['attractions'])}\n"
         )

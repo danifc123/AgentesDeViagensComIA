@@ -410,6 +410,10 @@ function App() {
       })
 
       const result = await response.json()
+      console.log('=== RAW RESPONSE FROM BACKEND ===')
+      console.log(result)
+      console.log('=== ROTEIRO DATA ===')
+      console.log(result.roteiro)
       setRoteiro(result.roteiro)
     } catch (error) {
       console.error('Erro ao gerar roteiro:', error)
