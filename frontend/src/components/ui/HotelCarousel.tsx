@@ -20,14 +20,28 @@ export default function HotelCarousel({ hotels }: { hotels: HotelOption[] }) {
               <div className="hotel-name">{hotel.name || 'Hotel'}</div>
               <div className="hotel-price">{hotel.total_price ? `R$ ${hotel.total_price}` : '—'}</div>
             </div>
-            <div className="hotel-meta">{hotel.distance || ''}</div>
+            <div className="hotel-distance">{hotel.distance || ''}</div>
+            {/* Nearby places as bullet points */}
+            {hotel.attractions && hotel.attractions.length > 0 && (
+              <div className="nearby-places">
+                {(Array.isArray(hotel.attractions) ? hotel.attractions : [])
+                  .slice(0, 3)
+                  .map((attr, i) => {
+                    const placeName = typeof attr === 'string' ? attr : attr.name || ''
+                    if (placeName) {
+                      return (
+                        <div key={i} className="nearby-place">
+                          <span className="bullet">•</span>
+                          <span>{placeName}</span>
+                        </div>
+                      )
+                    }
+                    return null
+                  })}
+              </div>
+            )}
             {hotel.booking_url && (
-              <a
-                className="btn btn-small"
-                href={String(hotel.booking_url)}
-                target="_blank"
-                rel="noreferrer"
-              >
+              <a className="btn btn-small" href={String(hotel.booking_url)} target="_blank" rel="noreferrer">
                 Reservar
               </a>
             )}

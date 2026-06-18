@@ -302,12 +302,13 @@ function App() {
             <h3>Orçamento</h3>
             <BudgetCard budget={data.budget} />
           </Card>
-
-          <Card className="data-card climate-card">
-            <h3>Clima</h3>
-            <WeatherCard climate={data.climate} />
-          </Card>
         </div>
+
+        {/* Weather card takes full width */}
+        <Card className="data-card climate-card">
+          <h3>Clima</h3>
+          <WeatherCard climate={data.climate} />
+        </Card>
 
         <Card className="data-card flights-card">
           <h3>Melhores Voos</h3>
