@@ -45,13 +45,20 @@ export interface HotelOption {
   booking_url?: string
 }
 
+export interface Tip {
+  category: 'restaurant' | 'tourist_spot' | 'nature' | 'nightlife'
+  title: string
+  description?: string
+}
+
 export interface RoteiroData {
   route?: RouteInfo
   budget?: BudgetInfo
   climate?: ClimateInfo
-  flights?: FlightOption[] | any
-  hotels?: HotelOption[] | any
-  tips?: string[]
+  flights?: FlightOption[]
+  hotels?: HotelOption[]
+  tips?: Tip[]
+  [key: string]: any
 }
 
 // types are exported by their declarations above

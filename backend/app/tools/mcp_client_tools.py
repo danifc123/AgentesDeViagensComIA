@@ -150,16 +150,15 @@ def tool_buscar_voos(origem: str, destino: str, data: str) -> str:
 def tool_buscar_hoteis(cidade: str) -> str:
     """
     Placeholder para busca de hotéis — Antes usava Amadeus.
-    Retorna dados mockados de hotéis para teste, incluindo URLs de imagens do Unsplash.
+    Retorna dados mockados de hotéis para teste, incluindo URLs de imagens do Unsplash e EXATAMENTE 3 opções de preço.
     """
     import random
 
     # Lista de URLs de imagens de hotéis do Unsplash
     hotel_images = [
+        "https://images.unsplash.com/photo-1555854877-bab0e5646d85?w=400",
         "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400",
         "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=400",
-        "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=400",
-        "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=400"
     ]
 
     # Lista de pontos turísticos comuns
@@ -167,29 +166,40 @@ def tool_buscar_hoteis(cidade: str) -> str:
         "Rio de Janeiro": ["Praia de Copacabana", "Cristo Redentor", "Pão de Açúcar"],
         "São Paulo": ["Avenida Paulista", "Ibirapuera", "Mercado Municipal"],
         "Paris": ["Torre Eiffel", "Louvre", "Champs-Élysées"],
-        "Nova York": ["Times Square", "Central Park", "Empire State Building"]
+        "Nova York": ["Times Square", "Central Park", "Empire State Building"],
     }
 
-    # Dados de exemplo
+    pontos = pontos_turisticos.get(cidade, ["Atração 1", "Atração 2", "Atração 3"])
+
+    # Dados de exemplo com EXATAMENTE 3 hotéis nas faixas de preço
     hoteis_exemplo = [
         {
-            "name": f"Hotel Premium {cidade}",
-            "price_per_night": 350,
-            "total_price": 1050,
-            "distance": "100m do centro",
-            "image": random.choice(hotel_images),
-            "booking_url": "https://www.booking.com",
-            "attractions": pontos_turisticos.get(cidade, ["Atração 1", "Atração 2", "Atração 3"])
+            "name": f"Hostel Econômico {cidade} (Baixo Preço)",
+            "price_per_night": 150,
+            "total_price": 450,
+            "distance": "50m da praia/centro",
+            "image": hotel_images[0],
+            "booking_url": "https://www.hostelworld.com",
+            "attractions": pontos,
         },
         {
-            "name": f"Hostel Econômico {cidade}",
-            "price_per_night": 120,
-            "total_price": 360,
-            "distance": "500m da praia",
-            "image": random.choice(hotel_images),
-            "booking_url": "https://www.hostelworld.com",
-            "attractions": pontos_turisticos.get(cidade, ["Atração A", "Atração B", "Atração C"])
-        }
+            "name": f"Hotel Comfort {cidade} (Médio Preço)",
+            "price_per_night": 450,
+            "total_price": 1350,
+            "distance": "200m da praia/centro",
+            "image": hotel_images[1],
+            "booking_url": "https://www.booking.com",
+            "attractions": pontos,
+        },
+        {
+            "name": f"Hotel Premium {cidade} (Alto Preço)",
+            "price_per_night": 1200,
+            "total_price": 3600,
+            "distance": "10m da praia/centro",
+            "image": hotel_images[2],
+            "booking_url": "https://www.booking.com",
+            "attractions": pontos,
+        },
     ]
 
     # Retorna como texto legível para o agente
