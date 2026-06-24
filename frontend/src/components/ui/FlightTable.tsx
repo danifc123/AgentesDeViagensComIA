@@ -35,7 +35,7 @@ export default function FlightTable({ flights = [] }: FlightTableProps) {
             <th>Chegada</th>
             <th>Duração</th>
             <th>Preço</th>
-            <th>Ação</th>
+            {/* <th>Ação</th> */}
           </tr>
         </thead>
         <tbody>
@@ -55,7 +55,7 @@ export default function FlightTable({ flights = [] }: FlightTableProps) {
               <td className="price">
                 {flight.price ? `${flight.price}${flight.currency ? ` ${flight.currency}` : ''}` : '—'}
               </td>
-              <td className="action">
+              {/* <td className="action">
                 {flight.purchase_url ? (
                   <a
                     href={flight.purchase_url}
@@ -69,7 +69,7 @@ export default function FlightTable({ flights = [] }: FlightTableProps) {
                 ) : (
                   <span className="no-link">—</span>
                 )}
-              </td>
+              </td> */}
             </tr>
           ))}
         </tbody>

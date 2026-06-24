@@ -47,11 +47,11 @@ export default function HotelCarousel({ hotels }: { hotels: HotelOption[] }) {
                   })}
               </div>
             )}
-            {hotel.booking_url && (
+            {/* {hotel.booking_url && (
               <a className="btn btn-small" href={String(hotel.booking_url)} target="_blank" rel="noreferrer">
                 Reservar
               </a>
-            )}
+            )} */}
           </div>
         </div>
       ))}
